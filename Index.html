@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💰 우리 가계부</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1fb;--white:#fff;--border:#ece8f8;
+  --text:#3d3554;--text2:#7b72a0;--text3:#b0a8cc;
+  --shadow:0 2px 16px rgba(120,100,180,.10);
+  --purple:#9b7fe8;--mint:#2ea868;--pink:#e05070;--blue:#4070e0;--orange:#e07030;
+  --gray:#e8e4f0;--gray-l:#f5f3fa;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -4px 20px rgba(120,100,180,.10)}
+.nbtn{flex:1;padding:5px 0 7px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:8.5px;color:var(--text3);font-weight:600;border:none;background:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:color .2s}
+.nbtn.on{color:var(--purple)}
+.nbtn .ni{font-size:17px}
+.pg{display:none;padding:0 14px 16px}
+.pg.on{display:block}
+.pghd{padding:16px 0 5px;display:flex;align-items:center;gap:8px}
+.back-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);padding:2px 4px;flex-shrink:0}
+.pgtitle{font-size:19px;font-weight:900;letter-spacing:-.5px;flex:1}
+.pgtitle em{color:var(--purple);font-style:normal}
+.mtabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 9px;scrollbar-width:none}
+.mtabs::-webkit-scrollbar{display:none}
+.mtab{flex-shrink:0;padding:5px 12px;border-radius:16px;border:1.5px solid var(--border);background:var(--white);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s}
+.mtab.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.card{background:var(--white);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.ctitle{font-size:13px;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.ctitle .sub{font-size:10px;color:var(--text3);font-weight:400;margin-left:auto}
+.hero{border-radius:20px;padding:18px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.hero::after{position:absolute;right:12px;top:12px;font-size:30px;opacity:.22}
+.hlabel{font-size:10px;color:var(--text2);letter-spacing:1.5px;margin-bottom:2px;font-weight:600}
+.hamount{font-size:26px;font-weight:900;letter-spacing:-1px}
+.hamount .won{font-size:15px}
+.hchips{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap}
+.hchip{background:rgba(255,255,255,.75);border-radius:9px;padding:2px 9px;font-size:10px;color:var(--text2);font-weight:500}
+.hchip b{color:var(--text)}
+.ie-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ie-card{border-radius:14px;padding:12px;border:1.5px solid transparent}
+.ie-card.income{background:#edfff6;border-color:#b3f0d6}
+.ie-card.expense{background:#fff0f4;border-color:#ffccd5}
+.ie-lbl{font-size:10px;font-weight:700;margin-bottom:2px}
+.ie-lbl.inc{color:var(--mint)}
+.ie-lbl.exp{color:var(--pink)}
+.ie-amt{font-size:16px;font-weight:900;letter-spacing:-.5px}
+.ie-amt.inc{color:var(--mint)}
+.ie-amt.exp{color:var(--pink)}
+.ie-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.net-card{border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.net-pos{background:linear-gradient(135deg,#edfff6,#d5f5e8);border:1.5px solid #b3f0d6}
+.net-neg{background:linear-gradient(135deg,#fff0f4,#ffe8ec);border:1.5px solid #ffccd5}
+.brow{margin-bottom:9px;cursor:pointer}
+.brow:last-child{margin-bottom:0}
+.bmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.bname{font-size:12px;display:flex;align-items:center;gap:5px;font-weight:500}
+.bdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.bval{font-size:11px;color:var(--text2);font-weight:500}
+.btrack{height:6px;background:var(--gray);border-radius:7px;overflow:hidden}
+.bfill{height:100%;border-radius:7px}
+.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.wcard{background:var(--white);border:1.5px solid var(--border);border-radius:13px;padding:11px;cursor:pointer;transition:transform .15s}
+.wcard:active{transform:scale(.97)}
+.wcard.hot{border-color:#ffb3c6;background:#fff5f7}
+.wcard.good{border-color:#b3f0d6;background:#f0fff8}
+.wlbl{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:1px}
+.wdates{font-size:9px;color:var(--text3);margin-bottom:4px}
+.wamt{font-size:14px;font-weight:800;margin-bottom:3px}
+.wbadge{display:inline-flex;align-items:center;font-size:9px;padding:2px 6px;border-radius:8px;font-weight:700}
+.wbadge.up{background:#ffe0e6;color:var(--pink)}
+.wbadge.dn{background:#e0f5ea;color:var(--mint)}
+.wbadge.base{background:var(--gray);color:var(--text3)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ccard{border-radius:13px;padding:11px;cursor:pointer;transition:transform .15s;border:1px solid transparent}
+.ccard:active{transform:scale(.97)}
+.cemoji{font-size:17px;margin-bottom:3px}
+.cname{font-size:10px;color:var(--text2);margin-bottom:1px;font-weight:500}
+.camt{font-size:13px;font-weight:800}
+.cpct{font-size:9px;color:var(--text3)}
+.cfilter{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;margin-bottom:10px}
+.cfilter::-webkit-scrollbar{display:none}
+.cpill{flex-shrink:0;padding:4px 11px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);color:var(--text2);font-size:10px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s}
+.cpill.on{color:#fff;border-color:transparent}
+.litem{display:flex;align-items:center;gap:5px;padding:7px 0;border-bottom:1px solid var(--border)}
+.litem:last-child{border-bottom:none}
+.ldate{color:var(--text3);width:36px;flex-shrink:0;font-size:9px;font-weight:500}
+.lname{flex:1;font-weight:500;font-size:11px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ltag{flex-shrink:0;border-radius:8px;padding:2px 5px;font-size:9px;font-weight:700}
+.lamt{flex-shrink:0;font-weight:700;font-size:11px}
+.lcard{flex-shrink:0;font-size:8px;color:var(--text3);max-width:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbtns{display:flex;gap:2px;flex-shrink:0}
+.ldel{background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;padding:1px 3px}
+.ledit{background:none;border:none;color:var(--blue);font-size:11px;cursor:pointer;padding:1px 3px}
+.cmpbar{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.cmplbl{width:50px;font-size:10px;color:var(--text2);flex-shrink:0;font-weight:600}
+.cmptrack{flex:1;height:22px;background:var(--gray);border-radius:6px;overflow:hidden}
+.cmpfill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 7px;min-width:24px}
+.cmpftxt{font-size:9px;font-weight:700;color:#fff;white-space:nowrap}
+.cmpamt{width:55px;font-size:10px;font-weight:700;color:var(--text);text-align:right;flex-shrink:0}
+.tbl{width:100%;border-collapse:collapse;font-size:10px}
+.tbl th{text-align:right;padding:4px 3px;background:var(--gray-l);color:var(--text2);font-size:9px;font-weight:700}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:5px 3px;border-bottom:1px solid var(--border);text-align:right;color:var(--text2)}
+.tbl td:first-child{text-align:left;font-weight:600;color:var(--text)}
+.tbl tr:last-child td{border-bottom:none;font-weight:800;color:var(--purple)}
+.fxitem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.fxitem:last-child{border-bottom:none}
+.fxl{display:flex;align-items:center;gap:6px}
+.fxdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.fxname{font-size:11px;font-weight:600}
+.fxsub{font-size:9px;color:var(--text3)}
+.fxbtns{display:flex;gap:4px;margin-top:2px}
+.fxbtn{font-size:9px;padding:2px 7px;border-radius:6px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:600}
+.fxedit{background:#e8f0ff;color:var(--blue)}
+.fxdel{background:#ffe8ec;color:var(--pink)}
+.puitem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.puitem:last-child{border-bottom:none}
+.pubadge{font-size:9px;font-weight:700;border-radius:6px;padding:2px 6px}
+.pubadge.out{background:#ffe8ec;color:var(--pink)}
+.pubadge.in{background:#e8fff3;color:var(--mint)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:18px 16px 32px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto}
+.modal h3{font-size:14px;font-weight:800;margin-bottom:14px}
+.mrow{margin-bottom:10px}
+.mrow label{font-size:10px;font-weight:700;color:var(--text2);display:block;margin-bottom:2px}
+.mrow input,.mrow select{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-family:'Noto Sans KR',sans-serif;color:var(--text);background:var(--white);outline:none}
+.mrow input:focus,.mrow select:focus{border-color:var(--purple)}
+.mbtns{display:flex;gap:8px;margin-top:14px}
+.mbtn{flex:1;padding:11px;border-radius:11px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+.mbtn.ok{background:var(--purple);color:#fff}
+.mbtn.cancel{background:var(--gray);color:var(--text2)}
+.type-toggle{display:flex;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:10px}
+.type-btn{flex:1;padding:9px;border:none;background:var(--white);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:var(--text2);transition:all .2s}
+.type-btn.ae{background:#fff0f4;color:var(--pink)}
+.type-btn.ai{background:#edfff6;color:var(--mint)}
+.fab{position:fixed;bottom:82px;right:16px;width:48px;height:48px;border-radius:50%;background:var(--purple);color:#fff;font-size:22px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(155,127,232,.4);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .2s}
+.fab:active{transform:scale(.93)}
+.slbl{font-size:9px;letter-spacing:2px;color:var(--text3);margin:12px 0 6px;font-weight:700}
+.ctabs{display:flex;gap:6px;margin-bottom:11px}
+.ctab{flex:1;padding:7px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;font-family:'Noto Sans KR',sans-serif;text-align:center;transition:all .2s}
+.ctab.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+/* 주차 분석 */
+.wdetail{background:rgba(255,255,255,.9);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid var(--border)}
+.wdetail.warn{border-color:#ffb3c6;background:#fff8fa}
+.wdetail.ok{border-color:#b3f0d6;background:#f5fff9}
+.wdtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.wdtitle{font-size:12px;font-weight:800}
+.wdamt{font-size:13px;font-weight:800}
+.problem-box{border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:11px;line-height:1.6}
+.problem-box:last-child{margin-bottom:0}
+.problem-box.red{background:#fff0f4;border-left:3px solid var(--pink);color:#c03050}
+.problem-box.orange{background:#fff8f0;border-left:3px solid var(--orange);color:#b05020}
+.problem-box.green{background:#edfff6;border-left:3px solid var(--mint);color:#1a7a48}
+.problem-box.blue{background:#eef4ff;border-left:3px solid var(--blue);color:#2050b0}
+/* 자산 */
+.asset-total{background:linear-gradient(135deg,#3d3554,#6040a0);border-radius:20px;padding:20px 16px;margin-bottom:10px;color:#fff;position:relative;overflow:hidden}
+.asset-total::after{content:'🏦';position:absolute;right:14px;top:14px;font-size:32px;opacity:.2}
+.asset-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.asset-row:last-child{border-bottom:none}
+.asset-name{font-size:12px;font-weight:600}
+.asset-sub{font-size:10px;color:var(--text3)}
+.asset-val{font-size:13px;font-weight:700}
+.asset-val.pos{color:var(--mint)}
+.asset-val.neg{color:var(--pink)}
+.asset-val.neu{color:var(--text2)}
+.asset-section{border-radius:12px;padding:3px 0;margin-bottom:2px}
+.asset-sec-title{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);padding:8px 0 4px}
+/* 저축 */
+.saving-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.saving-item:last-child{border-bottom:none}
+.saving-badge{font-size:9px;font-weight:700;border-radius:6px;padding:2px 6px;background:#e8f0ff;color:var(--blue)}
+.saving-badge.stock{background:#fff0e8;color:var(--orange)}
+.saving-badge.purpose{background:#f0e8ff;color:var(--purple)}
+/* TAG */
+.t식비{background:#ffe8ec;color:#e05070}.t생활용품{background:#e8f0ff;color:#4070e0}
+.t건강{background:#e8fff3;color:#2ea868}.t자녀{background:#fff0e8;color:#d06030}
+.t자동차{background:#fff8e0;color:#c08020}.t꾸밈비{background:#ffe8f8;color:#c040a0}
+.t자기계발{background:#e8ffe8;color:#208020}.t경조사{background:#fff5e8;color:#b06020}
+.t기타{background:#f0eef8;color:#9080b0}.t고정지출{background:#e8f8ff;color:#2090c0}
+.t여행{background:#f0e8ff;color:#7040c0}.t목적통장{background:#e8f0ff;color:#4070e0}
+.t급여{background:#e8fff3;color:#2ea868}.t상여금{background:#d5f5e8;color:#1a8a58}
+.t해미월급{background:#e8fff3;color:#2ea868}.t영빈월급{background:#edfff6;color:#2ea868}
+.t아동수당{background:#fff0e8;color:#d06030}.t기타수입{background:#e8f5ee;color:#4a9a6a}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp .22s ease both}
+</style>
+</head>
+<body>
+
+<div id="pg-home" class="pg on">
+  <div class="pghd"><div class="pgtitle">월별 <em>리포트</em> 📊</div></div>
+  <div class="mtabs" id="home-mtabs"></div>
+  <div id="home-body"></div>
+</div>
+
+<div id="pg-detail" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">지출 <em>내역</em> 📋</div></div>
+  <div class="mtabs" id="detail-mtabs"></div>
+  <div id="detail-body"></div>
+</div>
+
+<div id="pg-income" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">수입 <em>내역</em> 💵</div></div>
+  <div class="mtabs" id="income-mtabs"></div>
+  <div id="income-body"></div>
+</div>
+
+<div id="pg-saving" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">저축 <em>현황</em> 💎</div>
+    <button onclick="openSavingModal()" style="background:var(--purple);color:#fff;border:none;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">+ 추가</button>
+  </div>
+  <div class="mtabs" id="saving-mtabs"></div>
+  <div id="saving-body"></div>
+</div>
+
+<div id="pg-asset" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">자산 <em>현황</em> 🏦</div>
+    <button onclick="openAssetModal()" style="background:var(--purple);color:#fff;border:none;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">+ 스냅샷</button>
+  </div>
+  <div id="asset-body"></div>
+</div>
+
+<div id="pg-compare" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">월별 <em>비교</em> 📈</div></div>
+  <div id="compare-body"></div>
+</div>
+
+<div id="pg-fixed" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">고정비 <em>관리</em> 📌</div>
+    <button onclick="openFixedModal()" style="background:var(--purple);color:#fff;border:none;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">+ 추가</button>
+  </div>
+  <div id="fixed-body"></div>
+</div>
+
+<div id="pg-purpose" class="pg">
+  <div class="pghd"><button class="back-btn" onclick="goBack()">←</button><div class="pgtitle">목적 <em>통장</em> 💰</div>
+    <button onclick="openPurposeModal()" style="background:var(--purple);color:#fff;border:none;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">+ 추가</button>
+  </div>
+  <div id="purpose-body"></div>
+</div>
+
+<div class="bnav">
+  <button class="nbtn on"  onclick="showPg('home')"><span class="ni">🏠</span>홈</button>
+  <button class="nbtn"     onclick="showPg('detail')"><span class="ni">📋</span>지출</button>
+  <button class="nbtn"     onclick="showPg('income')"><span class="ni">💵</span>수입</button>
+  <button class="nbtn"     onclick="showPg('saving')"><span class="ni">💎</span>저축</button>
+  <button class="nbtn"     onclick="showPg('asset')"><span class="ni">🏦</span>자산</button>
+  <button class="nbtn"     onclick="showPg('compare')"><span class="ni">📊</span>비교</button>
+  <button class="nbtn"     onclick="showPg('fixed')"><span class="ni">📌</span>고정비</button>
+  <button class="nbtn"     onclick="showPg('purpose')"><span class="ni">💰</span>목적통장</button>
+</div>
+
+<button class="fab" id="fab-btn" style="display:none" onclick="onFabClick()">+</button>
+
+<!-- MODAL TX -->
+<div class="modal-bg" id="modal-tx">
+  <div class="modal">
+    <h3 id="modal-tx-title">💸 내역 추가</h3>
+    <input type="hidden" id="tx-edit-id">
+    <div class="type-toggle">
+      <button class="type-btn ae" id="btn-type-exp" onclick="setTxType('지출')">💸 지출</button>
+      <button class="type-btn"    id="btn-type-inc" onclick="setTxType('수입')">💵 수입</button>
+    </div>
+    <div class="mrow"><label>날짜</label><input type="date" id="tx-date"></div>
+    <div class="mrow"><label>항목명</label><input type="text" id="tx-name"></div>
+    <div class="mrow"><label>카테고리</label><select id="tx-cat"></select></div>
+    <div class="mrow"><label>금액 (원)</label><input type="number" id="tx-amt"></div>
+    <div class="mrow"><label>카드/은행</label><input type="text" id="tx-card"></div>
+    <div class="mbtns">
+      <button class="mbtn cancel" onclick="closeTxModal()">취소</button>
+      <button class="mbtn ok" onclick="saveTx()">저장</button>
+    </div>
+    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:11px">
+      <div style="font-size:11px;font-weight:700;margin-bottom:6px">📥 JSON 일괄 가져오기</div>
+      <textarea id="import-json" style="width:100%;height:65px;border:1.5px solid var(--border);border-radius:10px;padding:8px;font-size:10px;font-family:monospace;resize:none;outline:none" placeholder='[{"date":"2026-04-02","name":"배달","cat":"식비","amt":23500,"type":"지출"}]'></textarea>
+      <button onclick="importJson()" style="width:100%;margin-top:6px;padding:8px;background:#e8f0ff;color:var(--blue);border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif">가져오기</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SAVING -->
+<div class="modal-bg" id="modal-saving">
+  <div class="modal">
+    <h3 id="modal-saving-title">💎 저축 추가</h3>
+    <input type="hidden" id="sv-edit-id">
+    <div class="mrow"><label>날짜</label><input type="date" id="sv-date"></div>
+    <div class="mrow"><label>항목명</label><input type="text" id="sv-name"></div>
+    <div class="mrow"><label>종류</label>
+      <select id="sv-cat">
+        <option value="목적 통장">목적 통장</option>
+        <option value="주식">주식/투자</option>
+        <option value="비상금">비상금</option>
+        <option value="기타저축">기타저축</option>
+      </select>
+    </div>
+    <div class="mrow"><label>금액 (원)</label><input type="number" id="sv-amt"></div>
+    <div class="mrow"><label>메모</label><input type="text" id="sv-memo"></div>
+    <div class="mbtns">
+      <button class="mbtn cancel" onclick="closeSavingModal()">취소</button>
+      <button class="mbtn ok" onclick="saveSaving()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FIXED -->
+<div class="modal-bg" id="modal-fixed">
+  <div class="modal">
+    <h3 id="modal-fixed-title">📌 고정비 추가</h3>
+    <input type="hidden" id="fx-edit-id">
+    <div class="mrow"><label>항목명</label><input type="text" id="fx-name"></div>
+    <div class="mrow"><label>금액 (원)</label><input type="number" id="fx-amt"></div>
+    <div class="mrow"><label>카테고리</label>
+      <select id="fx-cat"><option>주거</option><option>통신</option><option>저축</option><option>자녀</option><option>보험</option><option>용돈</option><option>대출 상환</option></select>
+    </div>
+    <div class="mrow"><label>은행/카드</label><input type="text" id="fx-bank"></div>
+    <div class="mrow"><label>납부일</label><input type="text" id="fx-due"></div>
+    <div class="mbtns">
+      <button class="mbtn cancel" onclick="closeFixedModal()">취소</button>
+      <button class="mbtn ok" onclick="saveFixed()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PURPOSE -->
+<div class="modal-bg" id="modal-purpose">
+  <div class="modal">
+    <h3>💰 목적통장 추가</h3>
+    <div class="mrow"><label>날짜</label><input type="date" id="pu-date"></div>
+    <div class="mrow"><label>항목명</label><input type="text" id="pu-name"></div>
+    <div class="mrow"><label>유형</label><select id="pu-type"><option value="저축">저축(입금)</option><option value="지출">지출(출금)</option></select></div>
+    <div class="mrow"><label>금액 (원)</label><input type="number" id="pu-amt"></div>
+    <div class="mrow"><label>메모</label><input type="text" id="pu-memo"></div>
+    <div class="mbtns">
+      <button class="mbtn cancel" onclick="closePurposeModal()">취소</button>
+      <button class="mbtn ok" onclick="savePurpose()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASSET -->
+<div class="modal-bg" id="modal-asset">
+  <div class="modal">
+    <h3 id="modal-asset-title">🏦 자산 항목 수정</h3>
+    <input type="hidden" id="as-edit-key">
+    <div class="mrow"><label>자산명</label><input type="text" id="as-name"></div>
+    <div class="mrow"><label>종류</label>
+      <select id="as-cat">
+        <option value="부동산">부동산</option><option value="저축_청약">저축/청약</option>
+        <option value="주식">주식/투자</option><option value="노후">노후/IRP/ISA</option>
+        <option value="현금">현금</option><option value="대출">대출(음수)</option><option value="자녀">자녀</option>
+      </select>
+    </div>
+    <div class="mrow"><label>현재 금액 (원, 대출은 음수)</label><input type="number" id="as-amt"></div>
+    <div class="mrow"><label>날짜 (스냅샷)</label><input type="date" id="as-date"></div>
+    <div class="mbtns">
+      <button class="mbtn cancel" onclick="closeAssetModal()">취소</button>
+      <button class="mbtn ok" onclick="saveAsset()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONSTANTS =====
+const CAT_COLOR={'식비':'#ff8fa3','생활용품':'#80a8ff','건강':'#60c898','자녀':'#ffaa70','자동차':'#ffd060','꾸밈비':'#e090e0','자기계발':'#70c870','경조사':'#ffb060','기타':'#a090c0','고정 지출':'#60b0e0','여행':'#a080e0','목적 통장':'#80a8ff','급여':'#2ea868','상여금':'#1a8a58','해미 월급':'#2ea868','영빈 월급':'#40b878','부수입':'#40b878','환급금':'#30a868','이자':'#50c888','기타 수입':'#4a9a6a','아동 수당':'#ff9060','육아급여':'#e070c0','주식':'#e07030','비상금':'#60b0e0','기타저축':'#a090c0'};
+const CAT_BG={'식비':'#ffe8ec','생활용품':'#e8f0ff','건강':'#e8fff3','자녀':'#fff0e8','자동차':'#fff8e0','꾸밈비':'#ffe8f8','자기계발':'#e8ffe8','경조사':'#fff5e8','기타':'#f0eef8','고정 지출':'#e8f8ff','여행':'#f0e8ff','목적 통장':'#e8f0ff','급여':'#e8fff3','상여금':'#d5f5e8','해미 월급':'#e8fff3','영빈 월급':'#edfff6','부수입':'#edfff6','환급금':'#e0fff0','이자':'#f0fff8','기타 수입':'#e8f5ee','아동 수당':'#fff0e8','육아급여':'#ffe8f8','주식':'#fff0e8','비상금':'#e8f8ff','기타저축':'#f0eef8'};
+const CAT_EMOJI={'식비':'🍽️','생활용품':'🛒','건강':'💊','자녀':'👶','자동차':'🚗','꾸밈비':'👗','자기계발':'📚','경조사':'🎁','기타':'📦','고정 지출':'⚙️','여행':'✈️','목적 통장':'🏦','급여':'💵','상여금':'🎉','해미 월급':'💵','영빈 월급':'💵','부수입':'💼','환급금':'🔄','이자':'🏦','기타 수입':'💰','아동 수당':'👶','육아급여':'🍼','주식':'📈','비상금':'🛡️','기타저축':'💰'};
+const INCOME_CATS=['해미 월급','영빈 월급','상여금','기타 수입','아동 수당','육아급여','환급금','이자','부수입'];
+const EXPENSE_CATS=['식비','생활용품','건강','자녀','자동차','꾸밈비','자기계발','경조사','기타','고정 지출','여행'];
+const FIXED_COL={'주거':'#ff8fa3','통신':'#80a8ff','저축':'#60c898','자녀':'#ffaa70','보험':'#a080e0','용돈':'#ffd060','대출 상환':'#e05070'};
+const ASSET_CAT_COLOR={'부동산':'#9b7fe8','저축_청약':'#2ea868','주식':'#e07030','노후':'#4070e0','현금':'#60c898','대출':'#e05070','자녀':'#ffaa70'};
+const ASSET_CAT_EMOJI={'부동산':'🏠','저축_청약':'🏦','주식':'📈','노후':'🌅','현금':'💵','대출':'📉','자녀':'👶'};
+
+// ===== DEFAULT DATA =====
+const DEFAULT_TX=[
+  // 12월 수입
+  {id:'i1201a',date:'2025-12-01',name:'영빈 월급',cat:'영빈 월급',amt:3180297,card:'',type:'수입',year:2025,month:12,week:1},
+  {id:'i1201b',date:'2025-12-01',name:'해미 월급',cat:'해미 월급',amt:3384650,card:'',type:'수입',year:2025,month:12,week:1},
+  {id:'i1201c',date:'2025-12-01',name:'해미 단축 급여',cat:'해미 월급',amt:275000,card:'',type:'수입',year:2025,month:12,week:1},
+  {id:'i1201d',date:'2025-12-01',name:'아동 수당',cat:'아동 수당',amt:200000,card:'',type:'수입',year:2025,month:12,week:1},
+  {id:'i1201e',date:'2025-12-01',name:'아이웰 병원 환급',cat:'기타 수입',amt:94600,card:'',type:'수입',year:2025,month:12,week:1},
+  // 12월 지출
+  {id:'e1201a',date:'2025-12-01',name:'쿠팡',cat:'생활용품',amt:5400,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1201b',date:'2025-12-01',name:'쿠팡 식자재',cat:'식비',amt:50410,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1203a',date:'2025-12-03',name:'ㄷㅂ',cat:'기타',amt:50000,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1203b',date:'2025-12-03',name:'치킨',cat:'식비',amt:23500,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1204a',date:'2025-12-04',name:'야구르트',cat:'식비',amt:44000,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1205a',date:'2025-12-05',name:'유민 안과',cat:'건강',amt:8900,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1205b',date:'2025-12-05',name:'엄마김밥야식',cat:'식비',amt:23500,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206a',date:'2025-12-06',name:'해미 에이팟 케이스',cat:'꾸밈비',amt:6520,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206b',date:'2025-12-06',name:'쿠팡 식자재',cat:'식비',amt:28790,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206c',date:'2025-12-06',name:'영빈이 옷',cat:'꾸밈비',amt:86600,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206d',date:'2025-12-06',name:'영빈이 영양제',cat:'건강',amt:52380,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206e',date:'2025-12-06',name:'스티커 제거제',cat:'생활용품',amt:11850,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206f',date:'2025-12-06',name:'드리미 소모품',cat:'생활용품',amt:19800,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206g',date:'2025-12-06',name:'물티슈',cat:'생활용품',amt:18900,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206h',date:'2025-12-06',name:'배달',cat:'식비',amt:25000,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206i',date:'2025-12-06',name:'투썸',cat:'식비',amt:21000,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1206j',date:'2025-12-06',name:'영빈 머리',cat:'꾸밈비',amt:20000,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1207a',date:'2025-12-07',name:'쌀',cat:'식비',amt:41900,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1207b',date:'2025-12-07',name:'검은콩두유',cat:'식비',amt:17860,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1207c',date:'2025-12-07',name:'식자재',cat:'식비',amt:60240,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1207d',date:'2025-12-07',name:'주유',cat:'자동차',amt:50000,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1207e',date:'2025-12-07',name:'카페',cat:'식비',amt:5200,card:'',type:'지출',year:2025,month:12,week:1},
+  {id:'e1208a',date:'2025-12-08',name:'식비',cat:'식비',amt:15000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1210a',date:'2025-12-10',name:'애들 우유',cat:'자녀',amt:19920,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1210b',date:'2025-12-10',name:'정수기',cat:'고정 지출',amt:30900,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1210c',date:'2025-12-10',name:'ㄷㅂ',cat:'기타',amt:100000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1211a',date:'2025-12-11',name:'모니터',cat:'자기계발',amt:104450,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1211b',date:'2025-12-11',name:'쿠팡 식자재',cat:'식비',amt:58400,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1211c',date:'2025-12-11',name:'쿠팡 멤버십',cat:'고정 지출',amt:7890,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1211d',date:'2025-12-11',name:'고기',cat:'식비',amt:27500,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1212a',date:'2025-12-12',name:'치킨',cat:'식비',amt:21000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1212b',date:'2025-12-12',name:'치킨2',cat:'식비',amt:10746,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1212c',date:'2025-12-12',name:'회사',cat:'식비',amt:3000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1212d',date:'2025-12-12',name:'김밥',cat:'식비',amt:23500,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1213a',date:'2025-12-13',name:'코코 밥',cat:'생활용품',amt:70560,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1213b',date:'2025-12-13',name:'유민이 머리',cat:'자녀',amt:65000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1213c',date:'2025-12-13',name:'요아정',cat:'식비',amt:24000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1213d',date:'2025-12-13',name:'임산부 꾸러미',cat:'식비',amt:10450,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1214a',date:'2025-12-14',name:'여권 사진',cat:'자녀',amt:40000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1214b',date:'2025-12-14',name:'이마트 생활용품',cat:'생활용품',amt:24580,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1214c',date:'2025-12-14',name:'편의점',cat:'식비',amt:9100,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1214d',date:'2025-12-14',name:'성심당',cat:'식비',amt:38100,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1214e',date:'2025-12-14',name:'오씨칼국수',cat:'식비',amt:41000,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1214f',date:'2025-12-14',name:'주차비',cat:'자동차',amt:2100,card:'',type:'지출',year:2025,month:12,week:2},
+  {id:'e1215a',date:'2025-12-15',name:'해미 책',cat:'자기계발',amt:18000,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1216a',date:'2025-12-16',name:'강가네 고기',cat:'식비',amt:30000,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1219a',date:'2025-12-19',name:'쿠팡 식자재',cat:'식비',amt:77000,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1219b',date:'2025-12-19',name:'한마음정육식당',cat:'식비',amt:47000,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1220a',date:'2025-12-20',name:'해미 송년회 선물',cat:'경조사',amt:33900,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1220b',date:'2025-12-20',name:'해미 핸드폰 거치대',cat:'생활용품',amt:4270,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1220c',date:'2025-12-20',name:'영빈 시외버스',cat:'자동차',amt:12800,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1220d',date:'2025-12-20',name:'핸드폰 충전기',cat:'생활용품',amt:44300,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1220e',date:'2025-12-20',name:'커피스미스',cat:'식비',amt:21700,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1220f',date:'2025-12-20',name:'갯마을바지락',cat:'식비',amt:34000,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1221a',date:'2025-12-21',name:'ㄷㅂ',cat:'기타',amt:100800,card:'',type:'지출',year:2025,month:12,week:3},
+  {id:'e1222a',date:'2025-12-22',name:'치즈',cat:'식비',amt:19900,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1224a',date:'2025-12-24',name:'브리키',cat:'식비',amt:105000,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1225a',date:'2025-12-25',name:'플레이그라운드',cat:'자녀',amt:48000,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1225b',date:'2025-12-25',name:'쿠팡식비',cat:'식비',amt:38800,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1225c',date:'2025-12-25',name:'더플레이그라운드',cat:'자녀',amt:9000,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1225d',date:'2025-12-25',name:'롯데아울렛',cat:'식비',amt:59490,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1225e',date:'2025-12-25',name:'어머님 철도',cat:'경조사',amt:27400,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1225f',date:'2025-12-25',name:'엄마김밥',cat:'식비',amt:32700,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1226a',date:'2025-12-26',name:'배달',cat:'식비',amt:27000,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1226b',date:'2025-12-26',name:'경조사봉투',cat:'식비',amt:4800,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1226c',date:'2025-12-26',name:'껌',cat:'식비',amt:6200,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1226d',date:'2025-12-26',name:'롯데리아',cat:'식비',amt:20000,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1227a',date:'2025-12-27',name:'해미 내복',cat:'생활용품',amt:15900,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1227b',date:'2025-12-27',name:'영빈 내복',cat:'꾸밈비',amt:19900,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1227c',date:'2025-12-27',name:'김',cat:'식비',amt:7980,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1227d',date:'2025-12-27',name:'이마트',cat:'식비',amt:50020,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1227e',date:'2025-12-27',name:'롯데아울렛 식비',cat:'식비',amt:123700,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1227f',date:'2025-12-27',name:'해미 화장품',cat:'꾸밈비',amt:110160,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1228a',date:'2025-12-28',name:'영어',cat:'자기계발',amt:70533,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1228b',date:'2025-12-28',name:'해미 옷',cat:'꾸밈비',amt:185800,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1228c',date:'2025-12-28',name:'유민 옷',cat:'자녀',amt:40000,card:'',type:'지출',year:2025,month:12,week:4},
+  {id:'e1228d',date:'2025-12-28',name:'스타벅스',cat:'식비',amt:14700,card:'',type:'지출',year:2025,month:12,week:4},
+  // 1월 수입
+  {id:'i0101a',date:'2026-01-01',name:'해미 12월 월급',cat:'해미 월급',amt:3369190,card:'',type:'수입',year:2026,month:1,week:1},
+  {id:'i0101b',date:'2026-01-01',name:'영빈 12월 월급',cat:'영빈 월급',amt:3136310,card:'',type:'수입',year:2026,month:1,week:1},
+  {id:'i0101c',date:'2026-01-01',name:'아동 수당',cat:'아동 수당',amt:200000,card:'',type:'수입',year:2026,month:1,week:1},
+  {id:'i0109a',date:'2026-01-09',name:'해미 상여금',cat:'상여금',amt:1393570,card:'',type:'수입',year:2026,month:1,week:2},
+  {id:'i0114a',date:'2026-01-14',name:'육아휴직 사후지급금',cat:'기타 수입',amt:1052420,card:'',type:'수입',year:2026,month:1,week:3},
+  {id:'i0116a',date:'2026-01-16',name:'영빈 성과급',cat:'상여금',amt:7000000,card:'',type:'수입',year:2026,month:1,week:3},
+  // 1월 지출
+  {id:'e0103a',date:'2026-01-03',name:'쿠팡 식자재',cat:'식비',amt:47910,card:'영빈 하나',type:'지출',year:2026,month:1,week:1},
+  {id:'e0105a',date:'2026-01-05',name:'배달의민족',cat:'식비',amt:28700,card:'영빈 하나',type:'지출',year:2026,month:1,week:1},
+  {id:'e0107a',date:'2026-01-07',name:'경조사',cat:'경조사',amt:100000,card:'영빈 하나',type:'지출',year:2026,month:1,week:1},
+  {id:'e0108a',date:'2026-01-08',name:'마트',cat:'식비',amt:89400,card:'영빈 하나',type:'지출',year:2026,month:1,week:2},
+  {id:'e0109b',date:'2026-01-09',name:'자기계발',cat:'자기계발',amt:104450,card:'영빈 하나',type:'지출',year:2026,month:1,week:2},
+  {id:'e0110a',date:'2026-01-10',name:'자동차',cat:'자동차',amt:50000,card:'영빈 하나',type:'지출',year:2026,month:1,week:2},
+  {id:'e0112a',date:'2026-01-12',name:'경조사',cat:'경조사',amt:200000,card:'영빈 하나',type:'지출',year:2026,month:1,week:2},
+  {id:'e0114b',date:'2026-01-14',name:'꾸밈비',cat:'꾸밈비',amt:180700,card:'영빈 하나',type:'지출',year:2026,month:1,week:3},
+  {id:'e0115a',date:'2026-01-15',name:'배달',cat:'식비',amt:35600,card:'영빈 하나',type:'지출',year:2026,month:1,week:3},
+  {id:'e0117a',date:'2026-01-17',name:'자동차',cat:'자동차',amt:58580,card:'영빈 하나',type:'지출',year:2026,month:1,week:3},
+  {id:'e0118a',date:'2026-01-18',name:'식한남자들',cat:'식비',amt:64000,card:'영빈 하나',type:'지출',year:2026,month:1,week:3},
+  {id:'e0118b',date:'2026-01-18',name:'자녀',cat:'자녀',amt:133960,card:'영빈 하나',type:'지출',year:2026,month:1,week:3},
+  {id:'e0120a',date:'2026-01-20',name:'마트',cat:'식비',amt:112300,card:'영빈 하나',type:'지출',year:2026,month:1,week:3},
+  {id:'e0123a',date:'2026-01-23',name:'네패스 루아',cat:'식비',amt:7900,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0123b',date:'2026-01-23',name:'애들 젓가락',cat:'자녀',amt:41000,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0123c',date:'2026-01-23',name:'떡갈비',cat:'식비',amt:13000,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0124a',date:'2026-01-24',name:'쿠팡 식자재',cat:'식비',amt:24840,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0124b',date:'2026-01-24',name:'도비',cat:'기타',amt:164500,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0125a',date:'2026-01-25',name:'부부 옷',cat:'꾸밈비',amt:261700,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0125b',date:'2026-01-25',name:'장난감',cat:'자녀',amt:32900,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0125c',date:'2026-01-25',name:'강가네',cat:'식비',amt:29300,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0126a',date:'2026-01-26',name:'참명인 한의원',cat:'자기계발',amt:142200,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0126b',date:'2026-01-26',name:'네패스 루아',cat:'식비',amt:8700,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0127a',date:'2026-01-27',name:'건전지,손세정제',cat:'생활용품',amt:10220,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0127b',date:'2026-01-27',name:'쿠팡 식자재',cat:'식비',amt:15330,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0128a',date:'2026-01-28',name:'영어공부',cat:'자기계발',amt:70533,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0129a',date:'2026-01-29',name:'치약',cat:'생활용품',amt:7960,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0129b',date:'2026-01-29',name:'네패스 루아',cat:'식비',amt:5400,card:'영빈 하나',type:'지출',year:2026,month:1,week:4},
+  {id:'e0130a',date:'2026-01-30',name:'1월 조의금',cat:'경조사',amt:400000,card:'',type:'지출',year:2026,month:1,week:5},
+  {id:'e0130b',date:'2026-01-30',name:'한마음 정육식당',cat:'식비',amt:51000,card:'영빈 하나',type:'지출',year:2026,month:1,week:5},
+  {id:'e0131a',date:'2026-01-31',name:'하나 소아과',cat:'건강',amt:18400,card:'영빈 하나',type:'지출',year:2026,month:1,week:5},
+  {id:'e0131b',date:'2026-01-31',name:'애들 머리',cat:'자녀',amt:26000,card:'영빈 하나',type:'지출',year:2026,month:1,week:5},
+  // 2월 수입
+  {id:'i0201a',date:'2026-02-01',name:'해미 1월 월급',cat:'해미 월급',amt:3411670,card:'',type:'수입',year:2026,month:2,week:1},
+  {id:'i0201b',date:'2026-02-01',name:'영빈 1월 월급',cat:'영빈 월급',amt:3373037,card:'',type:'수입',year:2026,month:2,week:1},
+  {id:'i0201c',date:'2026-02-01',name:'아동 수당',cat:'아동 수당',amt:200000,card:'',type:'수입',year:2026,month:2,week:1},
+  // 2월 지출
+  {id:'f0201a',date:'2026-02-01',name:'배달',cat:'식비',amt:15886,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0202a',date:'2026-02-02',name:'동죽면 칼국수',cat:'식비',amt:30500,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0202b',date:'2026-02-02',name:'황제 마사지',cat:'꾸밈비',amt:120000,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0203a',date:'2026-02-03',name:'주유',cat:'자동차',amt:50000,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0203b',date:'2026-02-03',name:'네패스루아',cat:'식비',amt:4000,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0203c',date:'2026-02-03',name:'쿠팡 식자재',cat:'식비',amt:17670,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0203d',date:'2026-02-03',name:'유이네 선물',cat:'경조사',amt:45130,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0204a',date:'2026-02-04',name:'배달',cat:'식비',amt:24500,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0204b',date:'2026-02-04',name:'야구르트',cat:'식비',amt:44000,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0206a',date:'2026-02-06',name:'해미 속옷',cat:'꾸밈비',amt:158782,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0207a',date:'2026-02-07',name:'네패스 루아',cat:'식비',amt:3800,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0207b',date:'2026-02-07',name:'세탁세제',cat:'생활용품',amt:25959,card:'영빈 하나',type:'지출',year:2026,month:2,week:1},
+  {id:'f0208a',date:'2026-02-08',name:'소풍',cat:'자녀',amt:34000,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0208b',date:'2026-02-08',name:'치즈',cat:'자녀',amt:25730,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0208c',date:'2026-02-08',name:'해미바지',cat:'꾸밈비',amt:36900,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0208d',date:'2026-02-08',name:'이마트 장',cat:'식비',amt:73580,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0209a',date:'2026-02-09',name:'병원',cat:'건강',amt:63900,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0210a',date:'2026-02-10',name:'배민',cat:'식비',amt:13200,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0210b',date:'2026-02-10',name:'정수기',cat:'기타',amt:30900,card:'영빈 삼성',type:'지출',year:2026,month:2,week:2},
+  {id:'f0210c',date:'2026-02-10',name:'베트남 패스트 트랙',cat:'여행',amt:33900,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0210d',date:'2026-02-10',name:'베트남 픽업',cat:'여행',amt:17900,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0210e',date:'2026-02-10',name:'쿠팡 식비',cat:'식비',amt:66130,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0210f',date:'2026-02-10',name:'도비',cat:'기타',amt:150000,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0211a',date:'2026-02-11',name:'편의점',cat:'식비',amt:2000,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0211b',date:'2026-02-11',name:'쿠팡 멤버십',cat:'기타',amt:7890,card:'영빈 삼성',type:'지출',year:2026,month:2,week:2},
+  {id:'f0212a',date:'2026-02-12',name:'해미 병원',cat:'건강',amt:44800,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0212b',date:'2026-02-12',name:'자녀 우유',cat:'자녀',amt:34320,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0213a',date:'2026-02-13',name:'배달',cat:'식비',amt:29200,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0214a',date:'2026-02-14',name:'고기',cat:'식비',amt:35000,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0214b',date:'2026-02-14',name:'병원(영빈,유민,유찬)',cat:'건강',amt:17100,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0214c',date:'2026-02-14',name:'해미 병원',cat:'건강',amt:160800,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0214d',date:'2026-02-14',name:'휴족시간',cat:'꾸밈비',amt:7880,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0214e',date:'2026-02-14',name:'쿠팡 이츠',cat:'식비',amt:23200,card:'영빈 하나',type:'지출',year:2026,month:2,week:2},
+  {id:'f0215a',date:'2026-02-15',name:'배달',cat:'식비',amt:23500,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0215b',date:'2026-02-15',name:'쿠팡 식비',cat:'식비',amt:21170,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0216a',date:'2026-02-16',name:'유민이 장난감',cat:'자녀',amt:95900,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0216b',date:'2026-02-16',name:'롯데 아울렛 마트',cat:'식비',amt:93450,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0216c',date:'2026-02-16',name:'롯데 아울렛 식비',cat:'식비',amt:44800,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0216d',date:'2026-02-16',name:'해미 화장품',cat:'꾸밈비',amt:20900,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0217a',date:'2026-02-17',name:'왓더버거',cat:'식비',amt:27600,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0217b',date:'2026-02-17',name:'약국',cat:'건강',amt:138410,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0218a',date:'2026-02-18',name:'배달',cat:'식비',amt:20413,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0218b',date:'2026-02-18',name:'비비큐',cat:'식비',amt:12000,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0219a',date:'2026-02-19',name:'코코 밥',cat:'생활용품',amt:132000,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0219b',date:'2026-02-19',name:'건전지',cat:'생활용품',amt:2660,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0219c',date:'2026-02-19',name:'껌',cat:'생활용품',amt:10900,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0220a',date:'2026-02-20',name:'이마트',cat:'식비',amt:55800,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0220b',date:'2026-02-20',name:'한마음 정육식당',cat:'식비',amt:51000,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0220c',date:'2026-02-20',name:'해미 속눈썹 예약',cat:'꾸밈비',amt:10000,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0221a',date:'2026-02-21',name:'단양 여행',cat:'여행',amt:332200,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0221b',date:'2026-02-21',name:'유민이 준비물',cat:'자녀',amt:6650,card:'영빈 하나',type:'지출',year:2026,month:2,week:3},
+  {id:'f0222a',date:'2026-02-22',name:'단양 여행 2일차',cat:'여행',amt:49100,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0222b',date:'2026-02-22',name:'수영복',cat:'여행',amt:49400,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0222c',date:'2026-02-22',name:'수영복2',cat:'여행',amt:17900,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0222d',date:'2026-02-22',name:'샤워필터',cat:'여행',amt:3860,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0222e',date:'2026-02-22',name:'해미 수영복',cat:'여행',amt:49400,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0225a',date:'2026-02-25',name:'유찬 기저귀',cat:'자녀',amt:80440,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0225b',date:'2026-02-25',name:'무인아이스크림',cat:'자녀',amt:2400,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0225c',date:'2026-02-25',name:'해미 머리',cat:'꾸밈비',amt:140000,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0225d',date:'2026-02-25',name:'해미 속눈섭',cat:'꾸밈비',amt:25000,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0226a',date:'2026-02-26',name:'지에스 마켓',cat:'식비',amt:19800,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0227a',date:'2026-02-27',name:'파리바게트',cat:'식비',amt:9450,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  {id:'f0228a',date:'2026-02-28',name:'교육비',cat:'자기계발',amt:70533,card:'영빈 하나',type:'지출',year:2026,month:2,week:4},
+  // 3월 수입
+  {id:'i0301a',date:'2026-03-01',name:'영빈 2월 월급(연말정산)',cat:'영빈 월급',amt:6000000,card:'',type:'수입',year:2026,month:3,week:1},
+  {id:'i0301b',date:'2026-03-01',name:'해미 2월 월급',cat:'해미 월급',amt:4399770,card:'',type:'수입',year:2026,month:3,week:1},
+  {id:'i0301c',date:'2026-03-01',name:'아동 수당',cat:'아동 수당',amt:200000,card:'',type:'수입',year:2026,month:3,week:1},
+  // 3월 지출
+  {id:'m0301a',date:'2026-03-01',name:'면세점, 공항 사용비',cat:'여행',amt:204700,card:'영빈 하나',type:'지출',year:2026,month:3,week:1},
+  {id:'m0306a',date:'2026-03-06',name:'배달',cat:'식비',amt:25500,card:'영빈 하나',type:'지출',year:2026,month:3,week:1},
+  {id:'m0307a',date:'2026-03-07',name:'배달',cat:'식비',amt:29500,card:'영빈 하나',type:'지출',year:2026,month:3,week:1},
+  {id:'m0307b',date:'2026-03-07',name:'애사비소다',cat:'식비',amt:29810,card:'영빈 하나',type:'지출',year:2026,month:3,week:1},
+  {id:'m0307c',date:'2026-03-07',name:'섬유유연제',cat:'생활용품',amt:6810,card:'영빈 하나',type:'지출',year:2026,month:3,week:1},
+  {id:'m0307d',date:'2026-03-07',name:'캠핑장 예약금',cat:'여행',amt:100000,card:'영빈 하나',type:'지출',year:2026,month:3,week:1},
+  {id:'m0308a',date:'2026-03-08',name:'막대사탕',cat:'자녀',amt:9610,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0308b',date:'2026-03-08',name:'배달',cat:'식비',amt:32133,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0309a',date:'2026-03-09',name:'한의원 해미',cat:'건강',amt:35000,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0310a',date:'2026-03-10',name:'편의점',cat:'자녀',amt:5100,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0311a',date:'2026-03-11',name:'코코 병원',cat:'기타',amt:277100,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0311b',date:'2026-03-11',name:'배달',cat:'식비',amt:33000,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0312a',date:'2026-03-12',name:'씨유',cat:'생활용품',amt:21900,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0312b',date:'2026-03-12',name:'농협 주유소',cat:'자동차',amt:50000,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0312c',date:'2026-03-12',name:'송이집',cat:'식비',amt:41700,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0312d',date:'2026-03-12',name:'선블럭',cat:'생활용품',amt:13560,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0313a',date:'2026-03-13',name:'편의점',cat:'식비',amt:17800,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0313b',date:'2026-03-13',name:'강가네 한우',cat:'식비',amt:26200,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0313c',date:'2026-03-13',name:'본죽 비빔밥',cat:'식비',amt:29800,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0313d',date:'2026-03-13',name:'병원 약국',cat:'건강',amt:7900,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0313e',date:'2026-03-13',name:'간식',cat:'식비',amt:3400,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0314a',date:'2026-03-14',name:'배달',cat:'식비',amt:26000,card:'영빈 하나',type:'지출',year:2026,month:3,week:2},
+  {id:'m0315a',date:'2026-03-15',name:'배달',cat:'식비',amt:26000,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0315b',date:'2026-03-15',name:'모래 놀이터',cat:'자녀',amt:52500,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0315c',date:'2026-03-15',name:'쭈낙',cat:'식비',amt:47000,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0316a',date:'2026-03-16',name:'더 돈카츠',cat:'식비',amt:41200,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0316b',date:'2026-03-16',name:'휴지',cat:'생활용품',amt:15900,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0316c',date:'2026-03-16',name:'구슬아이스크림',cat:'자녀',amt:6400,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0317a',date:'2026-03-17',name:'간식',cat:'식비',amt:5900,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0317b',date:'2026-03-17',name:'쿠팡 식자재',cat:'식비',amt:43380,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0319a',date:'2026-03-19',name:'이마트에브리데이',cat:'식비',amt:11320,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0319b',date:'2026-03-19',name:'한마음정육식당',cat:'식비',amt:74000,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0319c',date:'2026-03-19',name:'루아',cat:'식비',amt:5400,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0320a',date:'2026-03-20',name:'피자마루',cat:'식비',amt:25900,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0320b',date:'2026-03-20',name:'약국',cat:'건강',amt:19000,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0321a',date:'2026-03-21',name:'황할머니 갈비',cat:'식비',amt:43000,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0321b',date:'2026-03-21',name:'보경언니 결혼',cat:'경조사',amt:300000,card:'영빈 하나',type:'지출',year:2026,month:3,week:3},
+  {id:'m0322a',date:'2026-03-22',name:'알쌈쭈꾸미',cat:'식비',amt:58000,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0322b',date:'2026-03-22',name:'은아목장',cat:'자녀',amt:111283,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0322c',date:'2026-03-22',name:'자녀 바디워시',cat:'자녀',amt:9900,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0323a',date:'2026-03-23',name:'배달',cat:'식비',amt:23500,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0324a',date:'2026-03-24',name:'쿠팡 식자재',cat:'식비',amt:24660,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0325a',date:'2026-03-25',name:'루아',cat:'식비',amt:2600,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0326a',date:'2026-03-26',name:'도비',cat:'기타',amt:50000,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0326b',date:'2026-03-26',name:'편의점',cat:'자녀',amt:5600,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0327a',date:'2026-03-27',name:'카페',cat:'식비',amt:5500,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0327b',date:'2026-03-27',name:'배달',cat:'식비',amt:18400,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328a',date:'2026-03-28',name:'배달',cat:'식비',amt:54800,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328b',date:'2026-03-28',name:'영어 교육',cat:'자기계발',amt:70533,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328c',date:'2026-03-28',name:'편의점',cat:'식비',amt:10650,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328d',date:'2026-03-28',name:'알쭈꾸미',cat:'식비',amt:73300,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328e',date:'2026-03-28',name:'유찬이 어린이집',cat:'자녀',amt:100000,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328f',date:'2026-03-28',name:'유민이 어린이집',cat:'자녀',amt:41750,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0328g',date:'2026-03-28',name:'지그재그',cat:'꾸밈비',amt:28290,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0329a',date:'2026-03-29',name:'강가네',cat:'식비',amt:16100,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0329b',date:'2026-03-29',name:'섬유유연제',cat:'생활용품',amt:12000,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0329c',date:'2026-03-29',name:'동물병원',cat:'기타',amt:307500,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0329d',date:'2026-03-29',name:'가산 딸기',cat:'식비',amt:18500,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0329e',date:'2026-03-29',name:'짜장면',cat:'식비',amt:32000,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0329f',date:'2026-03-29',name:'코너피크',cat:'식비',amt:11000,card:'영빈 하나',type:'지출',year:2026,month:3,week:4},
+  {id:'m0331a',date:'2026-03-31',name:'반찬',cat:'식비',amt:39100,card:'영빈 하나',type:'지출',year:2026,month:3,week:5},
+  {id:'m0331b',date:'2026-03-31',name:'치킨',cat:'식비',amt:43000,card:'영빈 하나',type:'지출',year:2026,month:3,week:5},
+  {id:'m0331c',date:'2026-03-31',name:'축제 프라페',cat:'식비',amt:15000,card:'영빈 하나',type:'지출',year:2026,month:3,week:5},
+  // 4월 수입
+  {id:'i0401a',date:'2026-04-01',name:'해미 3월 월급',cat:'해미 월급',amt:3491480,card:'',type:'수입',year:2026,month:4,week:1},
+  {id:'i0401b',date:'2026-04-01',name:'영빈 3월 월급',cat:'영빈 월급',amt:3511847,card:'',type:'수입',year:2026,month:4,week:1},
+  {id:'i0401c',date:'2026-04-01',name:'아동 수당',cat:'아동 수당',amt:200000,card:'',type:'수입',year:2026,month:4,week:1},
+  {id:'i0418a',date:'2026-04-18',name:'의료비',cat:'영빈 월급',amt:365000,card:'',type:'수입',year:2026,month:4,week:3},
+  {id:'i0420a',date:'2026-04-20',name:'우수인재',cat:'해미 월급',amt:2891220,card:'',type:'수입',year:2026,month:4,week:3},
+  {id:'i0423a',date:'2026-04-23',name:'영빈 추가 돈',cat:'영빈 월급',amt:2217610,card:'',type:'수입',year:2026,month:4,week:4},
+  // 4월 지출
+  {id:'a0',date:'2026-04-01',name:'GS25(담배)',cat:'기타',amt:151500,card:'카카오페이',type:'지출',year:2026,month:4,week:1},
+  {id:'a1',date:'2026-04-02',name:'배달의 민족',cat:'식비',amt:23500,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a2',date:'2026-04-02',name:'네패스 루아',cat:'식비',amt:1400,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a3',date:'2026-04-03',name:'씨유(CU)',cat:'식비',amt:4500,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a4',date:'2026-04-03',name:'소보양본가 오창점',cat:'식비',amt:24000,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a5',date:'2026-04-03',name:'오창농협주유소',cat:'자동차',amt:50000,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a6',date:'2026-04-03',name:'루아',cat:'식비',amt:2000,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a7',date:'2026-04-04',name:'티엠호텔',cat:'여행',amt:80000,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a8',date:'2026-04-05',name:'배달의 민족',cat:'식비',amt:26366,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a9',date:'2026-04-05',name:'소이 선물',cat:'경조사',amt:9900,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a10',date:'2026-04-05',name:'쿠팡(식품류)',cat:'식비',amt:79650,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a11',date:'2026-04-05',name:'쿠팡(수건)',cat:'생활용품',amt:56400,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a12',date:'2026-04-05',name:'쿠팡(인라인가방)',cat:'자녀',amt:9900,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a13',date:'2026-04-06',name:'편의점(GS25)',cat:'식비',amt:9500,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a14',date:'2026-04-06',name:'편의점(세븐)',cat:'식비',amt:6100,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a15',date:'2026-04-06',name:'한국야쿠르트',cat:'식비',amt:55000,card:'영빈 삼성',type:'지출',year:2026,month:4,week:1},
+  {id:'a16',date:'2026-04-07',name:'루아',cat:'식비',amt:1000,card:'영빈 하나',type:'지출',year:2026,month:4,week:1},
+  {id:'a17',date:'2026-04-08',name:'배달의민족',cat:'식비',amt:30900,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a18',date:'2026-04-09',name:'네패스 루아 x3',cat:'식비',amt:5000,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a19',date:'2026-04-09',name:'고매옥',cat:'식비',amt:56000,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a20',date:'2026-04-09',name:'스타벅스',cat:'식비',amt:17400,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a21',date:'2026-04-10',name:'공주칼국수',cat:'식비',amt:50000,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a22',date:'2026-04-10',name:'배달의민족',cat:'식비',amt:34000,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a23',date:'2026-04-10',name:'네이버플러스 멤버십',cat:'고정 지출',amt:4900,card:'영빈 삼성',type:'지출',year:2026,month:4,week:2},
+  {id:'a24',date:'2026-04-10',name:'정수기(SK인텔릭스)',cat:'고정 지출',amt:30900,card:'영빈 삼성',type:'지출',year:2026,month:4,week:2},
+  {id:'a25',date:'2026-04-11',name:'하나소아청소년과',cat:'건강',amt:9500,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a26',date:'2026-04-11',name:'꿈꾸는기린약국',cat:'건강',amt:5100,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a27',date:'2026-04-11',name:'이마트에브리데이',cat:'식비',amt:45410,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a28',date:'2026-04-11',name:'루아',cat:'식비',amt:4500,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a29',date:'2026-04-11',name:'쿠팡(식품)',cat:'식비',amt:63580,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a30',date:'2026-04-11',name:'쿠팡(생활용품)',cat:'생활용품',amt:43900,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a31',date:'2026-04-11',name:'쿠팡(블루투스 마우스)',cat:'기타',amt:14200,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a32',date:'2026-04-11',name:'쿠팡(칼로바이 쉐이크)',cat:'식비',amt:33800,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a33',date:'2026-04-11',name:'쿠팡 와우 멤버십',cat:'고정 지출',amt:7890,card:'영빈 삼성',type:'지출',year:2026,month:4,week:2},
+  {id:'a34',date:'2026-04-12',name:'코코 병원(동물)',cat:'기타',amt:470000,card:'영빈 청주',type:'지출',year:2026,month:4,week:2},
+  {id:'a35',date:'2026-04-13',name:'권가제면소',cat:'식비',amt:22000,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a36',date:'2026-04-13',name:'쿠팡(에너지바)',cat:'식비',amt:20220,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a37',date:'2026-04-13',name:'쿠팡(생활용품)',cat:'생활용품',amt:54020,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a38',date:'2026-04-13',name:'루아',cat:'식비',amt:3600,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a39',date:'2026-04-13',name:'배달의 민족',cat:'식비',amt:23500,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a40',date:'2026-04-14',name:'내가조선의맥주고',cat:'식비',amt:36000,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a41',date:'2026-04-14',name:'쿠팡(세탁세제)',cat:'생활용품',amt:16760,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a42',date:'2026-04-14',name:'배달',cat:'식비',amt:12600,card:'영빈 하나',type:'지출',year:2026,month:4,week:2},
+  {id:'a43',date:'2026-04-15',name:'루아',cat:'식비',amt:3000,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a44',date:'2026-04-16',name:'명가푸드(야시장)',cat:'식비',amt:44000,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a45',date:'2026-04-16',name:'루아 x2',cat:'식비',amt:4500,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a46',date:'2026-04-16',name:'쿠팡(PE 투약병)',cat:'건강',amt:10180,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a47',date:'2026-04-17',name:'왕타 칫솔',cat:'생활용품',amt:15330,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a48',date:'2026-04-17',name:'명가푸드(야시장)',cat:'식비',amt:55000,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a49',date:'2026-04-17',name:'루아',cat:'식비',amt:3800,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a50',date:'2026-04-18',name:'배달의 민족',cat:'식비',amt:40000,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a51',date:'2026-04-19',name:'배달의 민족',cat:'식비',amt:23500,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a52',date:'2026-04-19',name:'세븐일레븐(담배)',cat:'기타',amt:50000,card:'카카오페이',type:'지출',year:2026,month:4,week:3},
+  {id:'a53',date:'2026-04-20',name:'쌀(수향미 골든퀸)',cat:'식비',amt:46900,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a54',date:'2026-04-20',name:'쿠팡(계란+바나나+과자)',cat:'식비',amt:18730,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a55',date:'2026-04-20',name:'쿠팡(생활용품)',cat:'생활용품',amt:69630,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a56',date:'2026-04-21',name:'배달의 민족',cat:'식비',amt:16000,card:'영빈 하나',type:'지출',year:2026,month:4,week:3},
+  {id:'a57',date:'2026-04-22',name:'배달의 민족',cat:'식비',amt:40000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a58',date:'2026-04-23',name:'택시',cat:'자동차',amt:10890,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a59',date:'2026-04-23',name:'도비(pet)',cat:'기타',amt:54500,card:'해미 청주',type:'지출',year:2026,month:4,week:4},
+  {id:'a60',date:'2026-04-23',name:'최재화손수제비',cat:'식비',amt:39000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a61',date:'2026-04-23',name:'스타벅스',cat:'식비',amt:16200,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a62',date:'2026-04-23',name:'배달의 민족',cat:'식비',amt:21100,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a63',date:'2026-04-23',name:'인터넷결제(KPN)',cat:'고정 지출',amt:100000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a64',date:'2026-04-23',name:'세븐일레븐(편의점)',cat:'식비',amt:3200,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a65',date:'2026-04-23',name:'이마트24',cat:'식비',amt:4500,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a66',date:'2026-04-23',name:'쿠팡(여행용품)',cat:'여행',amt:99290,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a67',date:'2026-04-23',name:'쿠팡(샴푸류)',cat:'생활용품',amt:24850,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a68',date:'2026-04-23',name:'쿠팡(마사지기)',cat:'건강',amt:3000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a69',date:'2026-04-23',name:'쿠팡(백팩-유니클로)',cat:'꾸밈비',amt:37520,card:'영빈 삼성',type:'지출',year:2026,month:4,week:4},
+  {id:'a70',date:'2026-04-23',name:'쿠팡(태블릿케이스)',cat:'자녀',amt:18900,card:'영빈 삼성',type:'지출',year:2026,month:4,week:4},
+  {id:'a71',date:'2026-04-23',name:'쿠팡(폰케이스)',cat:'기타',amt:14900,card:'영빈 삼성',type:'지출',year:2026,month:4,week:4},
+  {id:'a72',date:'2026-04-23',name:'유찬 특별활동비',cat:'자녀',amt:173500,card:'해미 삼성',type:'지출',year:2026,month:4,week:4},
+  {id:'a73',date:'2026-04-23',name:'해미 바지',cat:'꾸밈비',amt:29800,card:'해미 삼성',type:'지출',year:2026,month:4,week:4},
+  {id:'a74',date:'2026-04-24',name:'짱이네',cat:'식비',amt:32500,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a75',date:'2026-04-24',name:'씨유(CU) 담배',cat:'기타',amt:79300,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a76',date:'2026-04-24',name:'한마음정육식당',cat:'식비',amt:38000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a77',date:'2026-04-24',name:'이마트에브리데이',cat:'식비',amt:60640,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a78',date:'2026-04-24',name:'바로알림서비스',cat:'고정 지출',amt:300,card:'영빈 삼성',type:'지출',year:2026,month:4,week:4},
+  {id:'a79',date:'2026-04-25',name:'다이소 병천점',cat:'생활용품',amt:53000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a80',date:'2026-04-25',name:'교동짬뽕',cat:'식비',amt:33000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a81',date:'2026-04-25',name:'컴포즈커피',cat:'식비',amt:9600,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a82',date:'2026-04-25',name:'독립기념관',cat:'여행',amt:2000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a83',date:'2026-04-25',name:'독립기념관 열차',cat:'여행',amt:13500,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a84',date:'2026-04-26',name:'배달의 민족',cat:'식비',amt:22000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a85',date:'2026-04-26',name:'쿠팡(도브비누+거품망)',cat:'생활용품',amt:17090,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a86',date:'2026-04-27',name:'달시아이스크림',cat:'식비',amt:6600,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a87',date:'2026-04-27',name:'오창제일약국',cat:'건강',amt:11000,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a88',date:'2026-04-27',name:'코코호텔',cat:'여행',amt:70000,card:'계좌이체',type:'지출',year:2026,month:4,week:4},
+  {id:'a89',date:'2026-04-28',name:'인터넷쇼핑(할부)',cat:'생활용품',amt:70533,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a90',date:'2026-04-28',name:'하나소아청소년과',cat:'건강',amt:3700,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a91',date:'2026-04-28',name:'꿈꾸는기린약국',cat:'건강',amt:8700,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a92',date:'2026-04-28',name:'그집과일',cat:'식비',amt:13800,card:'영빈 하나',type:'지출',year:2026,month:4,week:4},
+  {id:'a93',date:'2026-04-28',name:'GS25(담배)',cat:'기타',amt:102000,card:'카카오페이',type:'지출',year:2026,month:4,week:4},
+  // 5월 수입
+  {id:'i0501a',date:'2026-05-01',name:'영빈이 5월 월급',cat:'영빈 월급',amt:4109480,card:'',type:'수입',year:2026,month:5,week:1},
+];
+
+const DEFAULT_SAVING=[
+  {id:'sv1',date:'2026-01-09',name:'목적통장 입금',cat:'목적 통장',amt:1400000,memo:''},
+  {id:'sv2',date:'2026-01-15',name:'목적통장 입금',cat:'목적 통장',amt:500000,memo:''},
+  {id:'sv3',date:'2026-01-16',name:'목적통장 입금',cat:'목적 통장',amt:7000000,memo:'성과급'},
+  {id:'sv4',date:'2026-02-01',name:'1월 월급 입금',cat:'목적 통장',amt:1000000,memo:''},
+  {id:'sv5',date:'2026-03-01',name:'연말정산 입금',cat:'목적 통장',amt:3000000,memo:''},
+  {id:'sv6',date:'2026-04-20',name:'박영빈 비트코인',cat:'주식',amt:1000000,memo:''},
+  {id:'sv7',date:'2026-04-23',name:'박영빈 ISA',cat:'주식',amt:1500000,memo:''},
+  {id:'sv8',date:'2026-04-23',name:'박영빈 주식',cat:'주식',amt:1500000,memo:''},
+  {id:'sv9',date:'2026-04-23',name:'주해미 ISA',cat:'주식',amt:1000000,memo:''},
+  {id:'sv10',date:'2026-04-23',name:'박영빈 주식2',cat:'주식',amt:2217610,memo:''},
+  {id:'sv11',date:'2026-04-23',name:'현금 저축',cat:'목적 통장',amt:7327516,memo:''},
+  {id:'sv12',date:'2026-04-23',name:'꾸밈비 저축',cat:'목적 통장',amt:870000,memo:''},
+];
+
+const DEFAULT_FIXED=[
+  {id:'fx1',name:'관리비',amt:250000,cat:'주거',bank:'토스뱅크',due:'매월 30일'},
+  {id:'fx2',name:'가스비',amt:50000,cat:'주거',bank:'토스뱅크',due:'매월 26일'},
+  {id:'fx3',name:'인터넷비',amt:18020,cat:'통신',bank:'토스뱅크',due:'매월 15일'},
+  {id:'fx4',name:'해미 핸드폰',amt:25030,cat:'통신',bank:'토스뱅크',due:'매월 15일'},
+  {id:'fx5',name:'현금 저축',amt:300000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx6',name:'해미 주식',amt:400000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx7',name:'영빈 주식',amt:400000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx8',name:'영빈 청약',amt:20000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx9',name:'어머님 상환',amt:350000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx10',name:'해미 청약',amt:20000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx11',name:'어머님 대출 상환',amt:600000,cat:'저축',bank:'토스뱅크',due:'매월'},
+  {id:'fx12',name:'유찬 특성활동비',amt:80000,cat:'자녀',bank:'아이사랑',due:'매월'},
+  {id:'fx13',name:'유민 버스비',amt:30000,cat:'자녀',bank:'토스뱅크',due:'매월'},
+  {id:'fx14',name:'유민 특성활동비',amt:83500,cat:'자녀',bank:'토스뱅크',due:'매월'},
+  {id:'fx15',name:'해미 운전자보험',amt:19950,cat:'보험',bank:'토스뱅크',due:'매월 15일'},
+  {id:'fx16',name:'해미 실비보험',amt:13419,cat:'보험',bank:'토스뱅크',due:'매월'},
+  {id:'fx17',name:'해미 보험',amt:99860,cat:'보험',bank:'토스뱅크',due:'매월'},
+  {id:'fx18',name:'화재보험',amt:9660,cat:'보험',bank:'토스뱅크',due:'매월'},
+  {id:'fx19',name:'유찬 보험',amt:75680,cat:'보험',bank:'토스뱅크',due:'매월'},
+  {id:'fx20',name:'영빈 운전자보험',amt:18290,cat:'보험',bank:'토스뱅크',due:'매월'},
+  {id:'fx21',name:'유민 보험',amt:72265,cat:'보험',bank:'토스뱅크',due:'매월'},
+  {id:'fx22',name:'영빈 용돈',amt:400000,cat:'용돈',bank:'토스뱅크',due:'매월'},
+  {id:'fx23',name:'해미 용돈',amt:200000,cat:'용돈',bank:'토스뱅크',due:'매월'},
+  {id:'fx24',name:'어머님 상환 이자',amt:50000,cat:'대출 상환',bank:'토스뱅크',due:'매월'},
+  {id:'fx25',name:'주담대',amt:600000,cat:'대출 상환',bank:'토스뱅크',due:'매월'},
+];
+
+const DEFAULT_PURPOSE=[
+  {id:'p1',date:'2026-01-01',name:'2월 온천 예약',type:'지출',amt:170000,memo:'온천 여행'},
+  {id:'p2',date:'2026-01-03',name:'선아 용돈',type:'지출',amt:200000,memo:''},
+  {id:'p3',date:'2026-01-04',name:'맥북 구매',type:'지출',amt:620000,memo:''},
+  {id:'p4',date:'2026-01-04',name:'나영이 결혼',type:'지출',amt:150000,memo:'경조사'},
+  {id:'p5',date:'2026-01-09',name:'해미 상여금 저축',type:'저축',amt:1400000,memo:'상여금'},
+  {id:'p6',date:'2026-01-15',name:'영빈 주식',type:'지출',amt:500000,memo:'주식 투자'},
+  {id:'p7',date:'2026-01-16',name:'해미 ISA',type:'지출',amt:2000000,memo:'ISA 납입'},
+  {id:'p8',date:'2026-01-16',name:'영빈 성과급',type:'저축',amt:7000000,memo:'성과급 저축'},
+  {id:'p9',date:'2026-01-18',name:'자동차세(영빈)',type:'지출',amt:334100,memo:''},
+  {id:'p10',date:'2026-01-18',name:'자동차세(해미)',type:'지출',amt:121210,memo:''},
+  {id:'p11',date:'2026-01-23',name:'영빈 자동차보험',type:'지출',amt:520900,memo:''},
+  {id:'p12',date:'2026-01-25',name:'1월 저축',type:'저축',amt:1000000,memo:''},
+  {id:'p13',date:'2026-01-28',name:'영빈 자동차 대출 상환',type:'지출',amt:5000000,memo:'완납'},
+  {id:'p14',date:'2026-01-30',name:'영우 조의금',type:'지출',amt:200000,memo:'경조사'},
+  {id:'p15',date:'2026-02-07',name:'생활비 대출',type:'지출',amt:240000,memo:''},
+  {id:'p16',date:'2026-02-20',name:'연말정산 환급금',type:'저축',amt:3000000,memo:''},
+  {id:'p17',date:'2026-02-22',name:'여행비(환전)',type:'지출',amt:1500000,memo:'일본 여행'},
+  {id:'p18',date:'2026-03-06',name:'여행비 추가',type:'지출',amt:500000,memo:''},
+  {id:'p19',date:'2026-03-31',name:'아케마 상환',type:'지출',amt:2622982,memo:'주식 상환'},
+  {id:'p20',date:'2026-04-03',name:'카드값 상환',type:'지출',amt:800000,memo:''},
+  {id:'p21',date:'2026-04-17',name:'4월 저축',type:'저축',amt:7327516,memo:'월급 저축'},
+  {id:'p22',date:'2026-04-20',name:'대출금 원금 상환',type:'지출',amt:1427516,memo:''},
+  {id:'p23',date:'2026-04-23',name:'해미 운전자보험',type:'지출',amt:561010,memo:'연납'},
+  {id:'p24',date:'2026-04-23',name:'송승훈 결혼',type:'지출',amt:200000,memo:'경조사'},
+  {id:'p25',date:'2026-04-24',name:'꾸밈비 사용',type:'지출',amt:870000,memo:''},
+];
+
+// 자산 스냅샷 데이터
+const DEFAULT_ASSET_SNAPSHOTS=[
+  {date:'2025-01-01',label:'25년 1월',items:[
+    {key:'부동산_대성베르힐',name:'대성베르힐',cat:'부동산',amt:313000000},
+    {key:'청약_해미',name:'해미 청약',cat:'저축_청약',amt:620000},
+    {key:'청약_영빈',name:'영빈 청약',cat:'저축_청약',amt:600000},
+    {key:'주식_아케마',name:'아케마 주식',cat:'주식',amt:749426},
+    {key:'주식_해미',name:'해미 주식',cat:'주식',amt:600000},
+    {key:'주식_영빈',name:'영빈 주식',cat:'주식',amt:920000},
+    {key:'대출_주담대',name:'주택 담보 대출',cat:'대출',amt:-203000000},
+    {key:'대출_어머님',name:'어머님 대출',cat:'대출',amt:-14000000},
+    {key:'대출_어머님신용',name:'어머님 신용 대출',cat:'대출',amt:-11600000},
+    {key:'대출_해미차',name:'해미 자동차 대출',cat:'대출',amt:-3203388},
+    {key:'대출_영빈차',name:'영빈 자동차 대출',cat:'대출',amt:-10092983},
+    {key:'대출_해미학자금',name:'해미 학자금 대출',cat:'대출',amt:-8708534},
+  ]},
+  {date:'2025-12-01',label:'25년 12월',items:[
+    {key:'부동산_대성베르힐',name:'대성베르힐',cat:'부동산',amt:313000000},
+    {key:'청약_해미',name:'해미 청약',cat:'저축_청약',amt:840000},
+    {key:'청약_영빈',name:'영빈 청약',cat:'저축_청약',amt:800000},
+    {key:'주식_아케마',name:'아케마 주식',cat:'주식',amt:4871269},
+    {key:'주식_해미',name:'해미 주식',cat:'주식',amt:2521691},
+    {key:'주식_영빈',name:'영빈 주식',cat:'주식',amt:3642350},
+    {key:'대출_주담대',name:'주택 담보 대출',cat:'대출',amt:-203000000},
+    {key:'대출_어머님',name:'어머님 대출',cat:'대출',amt:-7400000},
+    {key:'대출_어머님신용',name:'어머님 신용 대출',cat:'대출',amt:-7200000},
+    {key:'대출_해미차',name:'해미 자동차 대출',cat:'대출',amt:-1700315},
+    {key:'대출_영빈차',name:'영빈 자동차 대출',cat:'대출',amt:-5312504},
+    {key:'대출_해미학자금',name:'해미 학자금 대출',cat:'대출',amt:-8084534},
+  ]},
+  {date:'2026-02-07',label:'26년 2월',items:[
+    {key:'부동산_대성베르힐',name:'대성베르힐',cat:'부동산',amt:313000000},
+    {key:'청약_해미',name:'해미 청약',cat:'저축_청약',amt:880000},
+    {key:'청약_영빈',name:'영빈 청약',cat:'저축_청약',amt:840000},
+    {key:'주식_아케마',name:'아케마 주식',cat:'주식',amt:5241269},
+    {key:'주식_해미',name:'해미 주식',cat:'주식',amt:2671810},
+    {key:'주식_영빈',name:'영빈 주식',cat:'주식',amt:4000000},
+    {key:'대출_주담대',name:'주택 담보 대출',cat:'대출',amt:-202767940},
+    {key:'대출_어머님',name:'어머님 대출',cat:'대출',amt:-6200000},
+    {key:'대출_어머님신용',name:'어머님 신용 대출',cat:'대출',amt:-6400000},
+    {key:'대출_해미차',name:'해미 자동차 대출',cat:'대출',amt:-1661016},
+    {key:'대출_해미학자금',name:'해미 학자금 대출',cat:'대출',amt:-8084534},
+    {key:'노후_해미ISA',name:'해미 ISA',cat:'노후',amt:2000000},
+    {key:'노후_현금',name:'현금',cat:'현금',amt:2700000},
+  ]},
+  {date:'2026-03-28',label:'26년 3월',items:[
+    {key:'부동산_대성베르힐',name:'대성베르힐',cat:'부동산',amt:313000000},
+    {key:'청약_해미',name:'해미 청약',cat:'저축_청약',amt:900000},
+    {key:'청약_영빈',name:'영빈 청약',cat:'저축_청약',amt:860000},
+    {key:'주식_아케마',name:'아케마 주식',cat:'주식',amt:5611269},
+    {key:'주식_해미',name:'해미 주식',cat:'주식',amt:2847645},
+    {key:'주식_영빈',name:'영빈 주식',cat:'주식',amt:4500000},
+    {key:'대출_주담대',name:'주택 담보 대출',cat:'대출',amt:-202724639},
+    {key:'대출_어머님',name:'어머님 대출',cat:'대출',amt:-5600000},
+    {key:'대출_어머님신용',name:'어머님 신용 대출',cat:'대출',amt:-6000000},
+    {key:'대출_해미차',name:'해미 자동차 대출',cat:'대출',amt:-1542372},
+    {key:'대출_해미학자금',name:'해미 학자금 대출',cat:'대출',amt:-8084534},
+    {key:'노후_해미ISA',name:'해미 ISA',cat:'노후',amt:2023950},
+    {key:'노후_현금',name:'현금',cat:'현금',amt:3938631},
+  ]},
+  {date:'2026-04-23',label:'26년 4월',items:[
+    {key:'부동산_대성베르힐',name:'대성베르힐',cat:'부동산',amt:313000000},
+    {key:'청약_해미',name:'해미 청약',cat:'저축_청약',amt:920000},
+    {key:'청약_영빈',name:'영빈 청약',cat:'저축_청약',amt:880000},
+    {key:'주식_해미',name:'해미 주식',cat:'주식',amt:3420031},
+    {key:'주식_영빈',name:'영빈 주식',cat:'주식',amt:10247014},
+    {key:'주식_비트코인',name:'영빈 비트코인',cat:'주식',amt:1271628},
+    {key:'대출_주담대',name:'주택 담보 대출',cat:'대출',amt:-202662962},
+    {key:'대출_어머님',name:'어머님 대출',cat:'대출',amt:-5000000},
+    {key:'대출_어머님신용',name:'어머님 신용 대출',cat:'대출',amt:-5600000},
+    {key:'대출_해미학자금',name:'해미 학자금 대출',cat:'대출',amt:-8084534},
+    {key:'노후_영빈IRP',name:'영빈 IRP',cat:'노후',amt:19145850},
+    {key:'노후_해미ISA',name:'해미 ISA',cat:'노후',amt:3208655},
+    {key:'노후_현금',name:'현금',cat:'현금',amt:5249815},
+  ]},
+];
+
+// ===== STATE =====
+let TX=[],SAVING=[],FIXED=[],PURPOSE=[],ASSET_SNAPSHOTS=[];
+let curMonth='2026_4';
+let curCat=null;
+let curTxType='지출';
+let pgHistory=['home'];
+let compareSub='expense';
+let curSavingMonth='all';
+
+const fmt=n=>n?Math.abs(Math.round(n)).toLocaleString('ko-KR'):'0';
+const fmtK=n=>{const a=Math.abs(n);return a>=100000000?Math.round(a/100000000*10)/10+'억':a>=10000?Math.round(a/10000)+'만':Math.round(a/1000)+'k';};
+const uid=()=>'u'+Date.now()+Math.random().toString(36).slice(2,6);
+
+// ===== MONTHS (동적 생성) =====
+function getMonths(){
+  const set=new Set();
+  TX.forEach(t=>set.add(`${t.year}_${t.month}`));
+  SAVING.forEach(s=>{const d=new Date(s.date);set.add(`${d.getFullYear()}_${d.getMonth()+1}`);});
+  // 최소 기본 월 보장
+  ['2025_12','2026_1','2026_2','2026_3','2026_4','2026_5'].forEach(m=>set.add(m));
+  return [...set].sort((a,b)=>{
+    const[ay,am]=a.split('_').map(Number);const[by,bm]=b.split('_').map(Number);
+    return ay!==by?ay-by:am-bm;
+  }).map(k=>{
+    const[y,m]=k.split('_').map(Number);
+    return{key:k,label:`${String(y).slice(2)}년 ${m}월`};
+  });
+}
+
+// ===== STORAGE =====
+function save(){
+  try{
+    localStorage.setItem('tx3',JSON.stringify(TX));
+    localStorage.setItem('sv3',JSON.stringify(SAVING));
+    localStorage.setItem('fx3',JSON.stringify(FIXED));
+    localStorage.setItem('pu3',JSON.stringify(PURPOSE));
+    localStorage.setItem('as3',JSON.stringify(ASSET_SNAPSHOTS));
+  }catch(e){}
+}
+function load(){
+  try{
+    TX=JSON.parse(localStorage.getItem('tx3')||'null')||[...DEFAULT_TX];
+    SAVING=JSON.parse(localStorage.getItem('sv3')||'null')||[...DEFAULT_SAVING];
+    FIXED=JSON.parse(localStorage.getItem('fx3')||'null')||[...DEFAULT_FIXED];
+    PURPOSE=JSON.parse(localStorage.getItem('pu3')||'null')||[...DEFAULT_PURPOSE];
+    ASSET_SNAPSHOTS=JSON.parse(localStorage.getItem('as3')||'null')||[...DEFAULT_ASSET_SNAPSHOTS];
+  }catch(e){TX=[...DEFAULT_TX];SAVING=[...DEFAULT_SAVING];FIXED=[...DEFAULT_FIXED];PURPOSE=[...DEFAULT_PURPOSE];ASSET_SNAPSHOTS=[...DEFAULT_ASSET_SNAPSHOTS];}
+}
+
+// ===== HELPERS =====
+function getMTx(mk){const[y,m]=mk.split('_').map(Number);return TX.filter(t=>t.year===y&&t.month===m);}
+function getExp(mk){return getMTx(mk).filter(t=>t.type==='지출');}
+function getInc(mk){return getMTx(mk).filter(t=>t.type==='수입');}
+function getCatTotals(txs){const r={};txs.forEach(t=>{r[t.cat]=(r[t.cat]||0)+t.amt;});return r;}
+function getWeekTotals(txs){const r={};txs.forEach(t=>{const w=t.week||1;r[w]=(r[w]||0)+t.amt;});return r;}
+
+// ===== NAVIGATION =====
+function goBack(){
+  if(pgHistory.length>1){pgHistory.pop();_showPg(pgHistory[pgHistory.length-1]);}
+}
+function showPg(name){
+  if(pgHistory[pgHistory.length-1]!==name)pgHistory.push(name);
+  _showPg(name);
+}
+function _showPg(name){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  const idx=['home','detail','income','saving','asset','compare','fixed','purpose'].indexOf(name);
+  if(idx>=0)document.querySelectorAll('.nbtn')[idx].classList.add('on');
+  const fabPages=['detail','income','saving'];
+  document.getElementById('fab-btn').style.display=fabPages.includes(name)?'flex':'none';
+  const MONTHS=getMonths();
+  if(name==='home')renderHome(curMonth);
+  if(name==='detail'){renderMTabs('detail-mtabs',curMonth,'selectDetailMonth');renderDetail(curMonth,curCat);}
+  if(name==='income'){renderMTabs('income-mtabs',curMonth,'selectIncomeMonth');renderIncome(curMonth);}
+  if(name==='saving'){renderSavingMTabs();renderSaving(curSavingMonth);}
+  if(name==='asset')renderAsset();
+  if(name==='compare')renderCompare();
+  if(name==='fixed')renderFixed();
+  if(name==='purpose')renderPurpose();
+}
+
+function renderMTabs(cid,mk,fn){
+  const MONTHS=getMonths();
+  document.getElementById(cid).innerHTML=MONTHS.map(m=>`<button class="mtab${m.key===mk?' on':''}" onclick="${fn}('${m.key}')">${m.label}</button>`).join('');
+}
+
+// ===== TX TYPE =====
+function setTxType(t){
+  curTxType=t;
+  document.getElementById('btn-type-exp').className='type-btn'+(t==='지출'?' ae':'');
+  document.getElementById('btn-type-inc').className='type-btn'+(t==='수입'?' ai':'');
+  const cats=t==='수입'?INCOME_CATS:EXPENSE_CATS;
+  document.getElementById('tx-cat').innerHTML=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+// ===== FAB =====
+function onFabClick(){
+  const pg=pgHistory[pgHistory.length-1];
+  if(pg==='saving')openSavingModal();
+  else openTxModal();
+}
+
+// ===== HOME =====
+function renderHome(mk){
+  curMonth=mk;
+  renderMTabs('home-mtabs',mk,'selectHomeMonth');
+  const expTxs=getExp(mk),incTxs=getInc(mk);
+  const totalExp=expTxs.reduce((s,t)=>s+t.amt,0);
+  const totalInc=incTxs.reduce((s,t)=>s+t.amt,0);
+  const net=totalInc-totalExp;
+  const cats=getCatTotals(expTxs);
+  const sortedCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const maxAmt=sortedCats[0]?.[1]||1;
+  const incCats=getCatTotals(incTxs);
+  const sortedInc=Object.entries(incCats).sort((a,b)=>b[1]-a[1]);
+  const maxInc=sortedInc[0]?.[1]||1;
+
+  // 주차 분석
+  const weeks=getWeekTotals(expTxs);
+  const weekArr=Object.entries(weeks).filter(([,v])=>v>0).sort((a,b)=>+a[0]-+b[0]).map(([k,v])=>({w:+k,total:v}));
+  const WD={1:'1~7일',2:'8~14일',3:'15~21일',4:'22~28일',5:'29일~'};
+
+  // 주차 카드
+  const weekCardsHtml=weekArr.map((w,i)=>{
+    const prev=weekArr[i-1];
+    const chg=prev?((w.total-prev.total)/prev.total*100):null;
+    const isHot=chg&&chg>50;
+    const isGood=chg&&chg<-20;
+    const badge=chg===null?`<span class="wbadge base">기준주</span>`:chg>0?`<span class="wbadge up">▲ +${chg.toFixed(1)}%</span>`:`<span class="wbadge dn">▼ ${chg.toFixed(1)}%</span>`;
+    const wTxs=expTxs.filter(t=>t.week===w.w);
+    const wCats=getCatTotals(wTxs);
+    const topCat=Object.entries(wCats).sort((a,b)=>b[1]-a[1])[0];
+    return `<div class="wcard${isHot?' hot':isGood?' good':''}" onclick="goCatWeek(${w.w})">
+      <div class="wlbl">${w.w}주차</div><div class="wdates">${WD[w.w]||''}</div>
+      <div class="wamt" style="color:${isHot?'#e05070':isGood?'#2ea868':'#4070e0'}">${fmt(w.total)}원</div>${badge}
+      ${topCat?`<div style="font-size:9px;color:var(--text3);margin-top:2px">${CAT_EMOJI[topCat[0]]||''}${topCat[0]} ${fmtK(topCat[1])}</div>`:''}
+    </div>`;
+  }).join('');
+
+  // 주차 상세 분석
+  const weekDetailHtml=weekArr.map((w,i)=>{
+    const prev=weekArr[i-1];
+    const chg=prev?((w.total-prev.total)/prev.total*100):null;
+    const wTxs=expTxs.filter(t=>t.week===w.w);
+    const wCats=Object.entries(getCatTotals(wTxs)).sort((a,b)=>b[1]-a[1]);
+    const topItems=[...wTxs].sort((a,b)=>b.amt-a.amt).slice(0,3);
+    const isWarn=chg&&chg>50;
+    const isGood=chg&&chg<-20;
+
+    // 문제점 분석
+    const problems=[];
+    const foodAmt=wTxs.filter(t=>t.cat==='식비').reduce((s,t)=>s+t.amt,0);
+    const deliveries=wTxs.filter(t=>t.name.includes('배달')||t.name.includes('배민'));
+    const smokes=wTxs.filter(t=>t.name.includes('담배')||t.name.includes('GS25')||t.name.includes('세븐일레븐'));
+    const beauty=wTxs.filter(t=>t.cat==='꾸밈비').reduce((s,t)=>s+t.amt,0);
+    const pet=wTxs.filter(t=>t.name.includes('코코')||t.name.includes('도비'));
+    if(chg&&chg>50) problems.push({type:'red',msg:`⚡ 전주 대비 +${chg.toFixed(0)}% 급증! 지출 폭발 주의`});
+    if(foodAmt>300000) problems.push({type:'red',msg:`🍽️ 식비 ${fmt(foodAmt)}원 — 주 목표 30만원 초과`});
+    if(deliveries.length>=3) problems.push({type:'orange',msg:`🛵 배달 ${deliveries.length}회(${fmt(deliveries.reduce((s,t)=>s+t.amt,0))}원) — 직접 요리로 절약 가능`});
+    if(smokes.length>0) problems.push({type:'orange',msg:`🚬 담배 ${smokes.length}회(${fmt(smokes.reduce((s,t)=>s+t.amt,0))}원) — 건강과 지갑 모두 챙겨요`});
+    if(beauty>100000) problems.push({type:'blue',msg:`👗 꾸밈비 ${fmt(beauty)}원 — 예산 내 소비인지 확인`});
+    if(pet.length>0) problems.push({type:'blue',msg:`🐶 반려동물 지출 ${fmt(pet.reduce((s,t)=>s+t.amt,0))}원 — 월 예산 책정 필요`});
+    if(isGood) problems.push({type:'green',msg:`✅ 전주보다 ${Math.abs(chg).toFixed(0)}% 절약! 잘 하고 있어요`});
+    if(!problems.length) problems.push({type:'green',msg:`✅ 이번 주 지출 패턴 양호해요`});
+
+    return `<div class="wdetail${isWarn?' warn':isGood?' ok':''}">
+      <div class="wdtop">
+        <div class="wdtitle">${w.w}주차 <span style="font-size:9px;color:var(--text3);font-weight:400">${WD[w.w]||''}</span></div>
+        <div class="wdamt" style="color:${isWarn?'#e05070':isGood?'#2ea868':'var(--text)'}">${fmt(w.total)}원</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px">
+        ${wCats.slice(0,4).map(([c,a])=>`<span style="background:${CAT_BG[c]||'#f0eef8'};color:${CAT_COLOR[c]||'#9b7fe8'};border-radius:7px;padding:2px 7px;font-size:9px;font-weight:700">${CAT_EMOJI[c]||''}${c} ${fmtK(a)}</span>`).join('')}
+      </div>
+      <div style="margin-bottom:7px">
+        ${topItems.map(t=>`<div style="font-size:10px;color:var(--text2);padding:1px 0">• ${t.name} <b style="color:var(--text)">${fmt(t.amt)}원</b></div>`).join('')}
+      </div>
+      ${problems.map(p=>`<div class="problem-box ${p.type}">${p.msg}</div>`).join('')}
+    </div>`;
+  }).join('');
+
+  // 이달 종합 문제점
+  const monthProblems=getMonthProblems(expTxs,cats,totalInc,totalExp,net);
+
+  const incBarHtml=sortedInc.length?sortedInc.map(([cat,amt])=>`
+    <div class="brow" onclick="showPg('income')">
+      <div class="bmeta"><div class="bname"><div class="bdot" style="background:${CAT_COLOR[cat]||'#2ea868'}"></div>${CAT_EMOJI[cat]||'💵'} ${cat}</div>
+      <div class="bval">${fmt(amt)}원 (${Math.round(amt/totalInc*100)}%)</div></div>
+      <div class="btrack"><div class="bfill" style="width:${Math.round(amt/maxInc*100)}%;background:${CAT_COLOR[cat]||'#2ea868'}"></div></div>
+    </div>`).join(''):`<div style="color:var(--text3);font-size:11px;text-align:center;padding:8px">수입 내역 없음 — 수입 탭에서 추가하세요</div>`;
+
+  document.getElementById('home-body').innerHTML=`
+  <div class="hero fade" style="background:linear-gradient(135deg,#e8d5ff,#d5e8ff,#d5f5e8)">
+    <div class="hlabel">이달 순수지</div>
+    <div class="hamount" style="color:${net>=0?'#2ea868':'#e05070'}">${net>=0?'+':''}${fmt(net)}<span class="won">원</span></div>
+    <div class="hchips"><div class="hchip">💵 수입 <b>${fmtK(totalInc)}원</b></div><div class="hchip">💸 지출 <b>${fmtK(totalExp)}원</b></div></div>
+  </div>
+  <div class="ie-grid fade">
+    <div class="ie-card income"><div class="ie-lbl inc">💵 총 수입</div><div class="ie-amt inc">${fmt(totalInc)}<span style="font-size:10px">원</span></div><div class="ie-sub">${incTxs.length}건</div></div>
+    <div class="ie-card expense"><div class="ie-lbl exp">💸 총 지출</div><div class="ie-amt exp">${fmt(totalExp)}<span style="font-size:10px">원</span></div><div class="ie-sub">${expTxs.length}건</div></div>
+  </div>
+  <div class="net-card fade ${net>=0?'net-pos':'net-neg'}">
+    <div><div style="font-size:10px;font-weight:700;color:var(--text2)">${net>=0?'💚 흑자':'🔴 적자'}</div><div style="font-size:9px;color:var(--text3)">${net>=0?'잘 아끼고 있어요!':'지출이 수입을 초과했어요'}</div></div>
+    <div style="font-size:18px;font-weight:900;color:${net>=0?'#2ea868':'#e05070'}">${net>=0?'+':''}${fmt(net)}원</div>
+  </div>
+  <div class="card fade"><div class="ctitle">💵 수입 현황 <span class="sub" onclick="showPg('income')" style="cursor:pointer;color:var(--purple)">전체 보기 →</span></div>${incBarHtml}</div>
+  <div class="slbl">📅 주차별 지출 요약</div>
+  <div class="wgrid fade">${weekCardsHtml||'<div style="color:var(--text3);font-size:11px;padding:6px">데이터 없음</div>'}</div>
+  <div class="card fade">
+    <div class="ctitle">🔍 주차별 상세 분석 <span class="sub">문제점 포함</span></div>
+    ${weekDetailHtml||'<div style="color:var(--text3);font-size:11px;text-align:center;padding:12px">내역을 추가하면 분석이 시작돼요</div>'}
+  </div>
+  <div class="card fade"><div class="ctitle">📊 지출 카테고리 <span class="sub">탭하면 내역 보기</span></div>
+    ${sortedCats.map(([cat,amt])=>`<div class="brow" onclick="goCat('${cat}')">
+      <div class="bmeta"><div class="bname"><div class="bdot" style="background:${CAT_COLOR[cat]||'#9b7fe8'}"></div>${CAT_EMOJI[cat]||'📌'} ${cat}</div>
+      <div class="bval">${fmt(amt)}원 (${Math.round(amt/totalExp*100)}%)</div></div>
+      <div class="btrack"><div class="bfill" style="width:${Math.round(amt/maxAmt*100)}%;background:${CAT_COLOR[cat]||'#9b7fe8'}"></div></div>
+    </div>`).join('')||'<div style="color:var(--text3);font-size:11px;text-align:center;padding:10px">지출 내역 없음</div>'}
+  </div>
+  <div class="cgrid fade">${sortedCats.slice(0,6).map(([cat,amt])=>`
+    <div class="ccard" style="background:${CAT_BG[cat]||'#f5f3fa'}" onclick="goCat('${cat}')">
+      <div class="cemoji">${CAT_EMOJI[cat]||'📌'}</div><div class="cname">${cat}</div>
+      <div class="camt" style="color:${CAT_COLOR[cat]||'#9b7fe8'}">${fmt(amt)}원</div>
+      <div class="cpct">${Math.round(amt/totalExp*100)}%</div>
+    </div>`).join('')}
+  </div>
+  ${monthProblems}`;
+}
+function selectHomeMonth(mk){renderHome(mk);}
+
+function getMonthProblems(txs,cats,inc,exp,net){
+  const problems=[];
+  const deliveries=txs.filter(t=>t.name.includes('배달')||t.name.includes('배민'));
+  const smokes=txs.filter(t=>t.name.includes('담배'));
+  const petTotal=txs.filter(t=>t.name.includes('코코')||t.name.includes('도비')).reduce((s,t)=>s+t.amt,0);
+  const saveRate=inc>0?Math.round(net/inc*100):0;
+
+  if(net<0) problems.push({type:'red',icon:'🔴',title:'적자 발생!',desc:`수입보다 지출이 ${fmt(Math.abs(net))}원 많아요. 지출 구조 점검이 필요해요.`});
+  if(saveRate>0&&saveRate<20&&inc>0) problems.push({type:'orange',icon:'⚠️',title:'저축률 낮음',desc:`저축률 ${saveRate}% — 목표 20% 이상을 권장해요.`});
+  if((cats['식비']||0)>800000) problems.push({type:'red',icon:'🍽️',title:'식비 과다',desc:`식비 ${fmt(cats['식비'])}원 — 월 목표 80만원 초과! ${fmt((cats['식비']||0)-800000)}원 초과`});
+  if(deliveries.length>=8) problems.push({type:'orange',icon:'🛵',title:'배달 과다',desc:`배달 ${deliveries.length}회(${fmt(deliveries.reduce((s,t)=>s+t.amt,0))}원) — 주 2회 이하로 줄여보세요`});
+  if(smokes.length>0) problems.push({type:'orange',icon:'🚬',title:'담배 지출',desc:`담배 ${smokes.length}회(${fmt(smokes.reduce((s,t)=>s+t.amt,0))}원) — 금연하면 연 ${fmt(smokes.reduce((s,t)=>s+t.amt,0)*12)}원 절약`});
+  if((cats['기타']||0)>300000) problems.push({type:'blue',icon:'📦',title:'기타 지출 큼',desc:`기타 ${fmt(cats['기타'])}원 — 세부 카테고리로 분류해보세요`});
+  if(petTotal>200000) problems.push({type:'blue',icon:'🐾',title:'반려동물 비용',desc:`반려동물 ${fmt(petTotal)}원 — 월 예산을 정해두면 좋아요`});
+  if((cats['꾸밈비']||0)>300000) problems.push({type:'blue',icon:'👗',title:'꾸밈비 과다',desc:`꾸밈비 ${fmt(cats['꾸밈비'])}원 — 목표 예산 설정을 권장해요`});
+  if(!problems.length) problems.push({type:'green',icon:'✅',title:'이달 재정 양호!',desc:'큰 문제점이 없어요. 이 패턴을 유지해보세요!'});
+
+  return `<div style="background:linear-gradient(135deg,#fff0f4,#fff8f0);border-radius:16px;padding:14px;margin-bottom:10px;border:1px solid #ffccd5">
+    <div style="font-size:12px;font-weight:800;color:var(--pink);margin-bottom:9px">⚠️ 이달 종합 문제점 & 조언</div>
+    ${problems.map(p=>`<div class="problem-box ${p.type}"><b>${p.icon} ${p.title}</b><br>${p.desc}</div>`).join('')}
+  </div>`;
+}
+
+// ===== DETAIL =====
+function selectDetailMonth(mk){curMonth=mk;curCat=null;renderMTabs('detail-mtabs',mk,'selectDetailMonth');renderDetail(mk,null);}
+function renderDetail(mk,catFilter){
+  curCat=catFilter;
+  const txs=getExp(mk);
+  const cats=Object.keys(getCatTotals(txs)).sort();
+  let filtered=catFilter?txs.filter(t=>t.cat===catFilter):txs;
+  filtered=[...filtered].sort((a,b)=>a.date.localeCompare(b.date));
+  const total=filtered.reduce((s,t)=>s+t.amt,0);
+  const pills=`<div class="cfilter">
+    <button class="cpill${!catFilter?' on':''}" style="${!catFilter?'background:var(--purple);border-color:var(--purple);':''}" onclick="selectDetailMonth('${mk}')">🔍 전체</button>
+    ${cats.map(c=>`<button class="cpill${catFilter===c?' on':''}" style="${catFilter===c?`background:${CAT_COLOR[c]||'#9b7fe8'};border-color:${CAT_COLOR[c]||'#9b7fe8'};`:''}" onclick="filterExpCat('${c}')">${CAT_EMOJI[c]||''}${c}</button>`).join('')}
+  </div>`;
+  const list=filtered.length?filtered.map(t=>`<div class="litem">
+    <div class="ldate">${t.date.slice(5).replace('-','/')}</div>
+    <div class="lname">${t.name}</div>
+    <span class="ltag t${t.cat.replace(/ /g,'')}">${t.cat}</span>
+    <div class="lamt" style="color:var(--pink)">-${fmt(t.amt)}</div>
+    <div class="lcard">${t.card||''}</div>
+    <div class="lbtns"><button class="ledit" onclick="openEditTx('${t.id}')">✏️</button><button class="ldel" onclick="delTx('${t.id}')">✕</button></div>
+  </div>`).join(''):`<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">내역이 없어요</div>`;
+  document.getElementById('detail-body').innerHTML=`${pills}<div class="card fade"><div class="ctitle">${catFilter?`${CAT_EMOJI[catFilter]||''} ${catFilter}`:'📋 지출 내역'} <span class="sub">${filtered.length}건 · ${fmt(total)}원</span></div>${list}</div>`;
+}
+function filterExpCat(cat){renderDetail(curMonth,cat);}
+function goCat(cat){showPg('detail');curCat=cat;renderMTabs('detail-mtabs',curMonth,'selectDetailMonth');renderDetail(curMonth,cat);}
+function goCatWeek(w){
+  showPg('detail');curCat=null;renderMTabs('detail-mtabs',curMonth,'selectDetailMonth');
+  const txs=getExp(curMonth).filter(t=>t.week===w);
+  const sorted=[...txs].sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('detail-body').innerHTML=`
+    <div class="cfilter"><button class="cpill on" style="background:var(--purple);border-color:var(--purple);color:#fff">${w}주차</button>
+    <button class="cpill" onclick="selectDetailMonth('${curMonth}')">전체</button></div>
+    <div class="card fade"><div class="ctitle">${w}주차 지출 <span class="sub">${txs.length}건 · ${fmt(txs.reduce((s,t)=>s+t.amt,0))}원</span></div>
+    ${sorted.map(t=>`<div class="litem"><div class="ldate">${t.date.slice(5).replace('-','/')}</div><div class="lname">${t.name}</div>
+    <span class="ltag t${t.cat.replace(/ /g,'')}">${t.cat}</span><div class="lamt" style="color:var(--pink)">-${fmt(t.amt)}</div>
+    <div class="lcard">${t.card||''}</div><div class="lbtns"><button class="ledit" onclick="openEditTx('${t.id}')">✏️</button><button class="ldel" onclick="delTx('${t.id}')">✕</button></div></div>`).join('')}
+    </div>`;
+}
+
+// ===== INCOME =====
+function selectIncomeMonth(mk){curMonth=mk;renderMTabs('income-mtabs',mk,'selectIncomeMonth');renderIncome(mk);}
+function renderIncome(mk){
+  const txs=getInc(mk);
+  const sorted=[...txs].sort((a,b)=>a.date.localeCompare(b.date));
+  const total=txs.reduce((s,t)=>s+t.amt,0);
+  const cats=getCatTotals(txs);
+  const sortedCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const maxAmt=sortedCats[0]?.[1]||1;
+  const list=sorted.length?sorted.map(t=>`<div class="litem">
+    <div class="ldate">${t.date.slice(5).replace('-','/')}</div>
+    <div class="lname">${t.name}</div>
+    <span class="ltag" style="background:${CAT_BG[t.cat]||'#e8fff3'};color:${CAT_COLOR[t.cat]||'#2ea868'}">${t.cat}</span>
+    <div class="lamt" style="color:var(--mint)">+${fmt(t.amt)}</div>
+    <div class="lcard">${t.card||''}</div>
+    <div class="lbtns"><button class="ledit" onclick="openEditTx('${t.id}')">✏️</button><button class="ldel" onclick="delTx('${t.id}')">✕</button></div>
+  </div>`).join(''):`<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">수입 내역 없음<br>+ 버튼으로 추가하세요</div>`;
+  document.getElementById('income-body').innerHTML=`
+  <div class="hero fade" style="background:linear-gradient(135deg,#d5f5e8,#d5ffe8)">
+    <div class="hlabel">이달 총 수입</div>
+    <div class="hamount" style="color:#1a8a58">${fmt(total)}<span class="won">원</span></div>
+    <div class="hchips"><div class="hchip">📥 <b>${txs.length}건</b></div></div>
+  </div>
+  <div class="card fade"><div class="ctitle">💵 수입 카테고리</div>
+    ${sortedCats.map(([cat,amt])=>`<div class="brow">
+      <div class="bmeta"><div class="bname"><div class="bdot" style="background:${CAT_COLOR[cat]||'#2ea868'}"></div>${CAT_EMOJI[cat]||'💵'} ${cat}</div>
+      <div class="bval">${fmt(amt)}원 (${Math.round(amt/total*100)}%)</div></div>
+      <div class="btrack"><div class="bfill" style="width:${Math.round(amt/maxAmt*100)}%;background:${CAT_COLOR[cat]||'#2ea868'}"></div></div>
+    </div>`).join('')||'<div style="color:var(--text3);font-size:11px;text-align:center;padding:8px">내역 없음</div>'}
+  </div>
+  <div class="card fade"><div class="ctitle">📋 수입 내역 <span class="sub">${txs.length}건 · ${fmt(total)}원</span></div>${list}</div>`;
+}
+
+// ===== SAVING =====
+function renderSavingMTabs(){
+  const MONTHS=getMonths();
+  const tabs=[{key:'all',label:'전체'},...MONTHS];
+  document.getElementById('saving-mtabs').innerHTML=tabs.map(m=>`<button class="mtab${m.key===curSavingMonth?' on':''}" onclick="selectSavingMonth('${m.key}')">${m.label}</button>`).join('');
+}
+function selectSavingMonth(mk){curSavingMonth=mk;renderSavingMTabs();renderSaving(mk);}
+function renderSaving(mk){
+  let items=mk==='all'?[...SAVING]:[...SAVING].filter(s=>{const d=new Date(s.date);return`${d.getFullYear()}_${d.getMonth()+1}`===mk;});
+  items=[...items].sort((a,b)=>a.date.localeCompare(b.date));
+  const total=items.reduce((s,i)=>s+i.amt,0);
+  const byMonth={};
+  SAVING.forEach(s=>{const d=new Date(s.date);const k=`${d.getFullYear()}_${d.getMonth()+1}`;byMonth[k]=(byMonth[k]||0)+s.amt;});
+  const MONTHS=getMonths();
+  const monthBarHtml=MONTHS.map(m=>{
+    const v=byMonth[m.key]||0;
+    const max=Math.max(...Object.values(byMonth),1);
+    return v>0?`<div class="cmpbar"><div class="cmplbl">${m.label}</div>
+      <div class="cmptrack"><div class="cmpfill" style="width:${Math.round(v/max*100)}%;background:${m.key===curSavingMonth?'#9b7fe8':'#c4b0f0'}"><span class="cmpftxt">${fmtK(v)}</span></div></div>
+      <div class="cmpamt">${fmt(v)}</div></div>`:''}).join('');
+
+  const catTotals=getCatTotals(items);
+  const sortedCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const list=items.length?items.map(s=>`<div class="saving-item">
+    <div><div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+      <span class="saving-badge ${s.cat==='주식'?'stock':s.cat==='목적 통장'?'purpose':''}">${s.cat}</span>
+      <span style="font-size:11px;font-weight:600">${s.name}</span></div>
+    <div style="font-size:9px;color:var(--text3)">${s.date.replace(/-/g,'.')} ${s.memo?'· '+s.memo:''}</div></div>
+    <div style="text-align:right">
+      <div style="font-size:13px;font-weight:800;color:var(--purple)">+${fmt(s.amt)}</div>
+      <div class="lbtns" style="justify-content:flex-end;margin-top:2px"><button class="ledit" onclick="openEditSaving('${s.id}')">✏️</button><button class="ldel" onclick="delSaving('${s.id}')">✕</button></div>
+    </div>
+  </div>`).join(''):`<div style="text-align:center;padding:18px;color:var(--text3);font-size:12px">저축 내역 없음</div>`;
+
+  document.getElementById('saving-body').innerHTML=`
+  <div class="hero fade" style="background:linear-gradient(135deg,#e8d5ff,#d5e8ff)">
+    <div class="hlabel">${mk==='all'?'누적 저축 총액':'이달 저축액'}</div>
+    <div class="hamount" style="color:var(--purple)">${fmt(total)}<span class="won">원</span></div>
+    <div class="hchips"><div class="hchip">💎 <b>${items.length}건</b></div></div>
+  </div>
+  ${mk==='all'?`<div class="card fade"><div class="ctitle">📈 월별 저축 현황</div>${monthBarHtml||'<div style="color:var(--text3);font-size:11px;text-align:center;padding:8px">데이터 없음</div>'}</div>`:''}
+  <div class="card fade"><div class="ctitle">💎 종류별 저축</div>
+    ${sortedCats.map(([cat,amt])=>`<div class="brow">
+      <div class="bmeta"><div class="bname"><div class="bdot" style="background:${CAT_COLOR[cat]||'#9b7fe8'}"></div>${CAT_EMOJI[cat]||'💎'} ${cat}</div>
+      <div class="bval">${fmt(amt)}원</div></div>
+      <div class="btrack"><div class="bfill" style="width:${Math.round(amt/total*100)}%;background:${CAT_COLOR[cat]||'#9b7fe8'}"></div></div>
+    </div>`).join('')||'<div style="color:var(--text3);font-size:11px;text-align:center;padding:8px">내역 없음</div>'}
+  </div>
+  <div class="card fade"><div class="ctitle">📋 저축 내역 <span class="sub">${items.length}건 · ${fmt(total)}원</span></div>${list}</div>`;
+}
+
+// ===== ASSET =====
+function renderAsset(){
+  const snaps=ASSET_SNAPSHOTS.sort((a,b)=>a.date.localeCompare(b.date));
+  if(!snaps.length){document.getElementById('asset-body').innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">자산 스냅샷이 없어요<br>+ 스냅샷 버튼으로 추가하세요</div>';return;}
+  const latest=snaps[snaps.length-1];
+  const latestItems=latest.items;
+  const totalAsset=latestItems.filter(i=>i.amt>0).reduce((s,i)=>s+i.amt,0);
+  const totalDebt=latestItems.filter(i=>i.amt<0).reduce((s,i)=>s+i.amt,0);
+  const netAsset=totalAsset+totalDebt;
+
+  // 순자산 추이
+  const trendHtml=snaps.map(snap=>{
+    const pos=snap.items.filter(i=>i.amt>0).reduce((s,i)=>s+i.amt,0);
+    const neg=snap.items.filter(i=>i.amt<0).reduce((s,i)=>s+i.amt,0);
+    const net=pos+neg;
+    const maxNet=Math.max(...snaps.map(s=>{const p=s.items.filter(i=>i.amt>0).reduce((a,i)=>a+i.amt,0);const n=s.items.filter(i=>i.amt<0).reduce((a,i)=>a+i.amt,0);return p+n;}),1);
+    const pct=Math.max(Math.round(net/maxNet*100),5);
+    return `<div class="cmpbar"><div class="cmplbl" style="font-size:9px">${snap.label}</div>
+      <div class="cmptrack"><div class="cmpfill" style="width:${pct}%;background:${snap===latest?'#9b7fe8':'#c4b0f0'}"><span class="cmpftxt">${fmtK(net)}</span></div></div>
+      <div class="cmpamt">${fmtK(net)}</div></div>`;
+  }).join('');
+
+  // 카테고리별 최신 자산
+  const catGroups={};
+  latestItems.forEach(item=>{
+    if(!catGroups[item.cat])catGroups[item.cat]=[];
+    catGroups[item.cat].push(item);
+  });
+  const catOrder=['부동산','저축_청약','주식','노후','현금','자녀','대출'];
+  const catHtml=catOrder.filter(c=>catGroups[c]).map(cat=>{
+    const items=catGroups[cat];
+    const catTotal=items.reduce((s,i)=>s+i.amt,0);
+    const isDebt=cat==='대출';
+    return `<div class="card fade">
+      <div class="ctitle" style="color:${ASSET_CAT_COLOR[cat]||'#9b7fe8'}">${ASSET_CAT_EMOJI[cat]||'💰'} ${cat==='저축_청약'?'저축/청약':cat} <span class="sub">${isDebt?'-':'+'}${fmt(Math.abs(catTotal))}원</span></div>
+      ${items.map(item=>{
+        // 이전 스냅샷과 비교
+        const prev=snaps.length>1?snaps[snaps.length-2].items.find(i=>i.key===item.key):null;
+        const chg=prev?item.amt-prev.amt:null;
+        return `<div class="asset-row">
+          <div><div class="asset-name">${item.name}</div>
+          ${chg!==null?`<div class="asset-sub">${chg>=0?'▲':'▼'} ${fmt(Math.abs(chg))}원 (${prev&&prev.amt!==0?((chg/Math.abs(prev.amt))*100).toFixed(1):'∞'}%)</div>`:''}</div>
+          <div>
+            <div class="asset-val ${item.amt>0?'pos':item.amt<0?'neg':'neu'}">${item.amt>0?'+':''}${fmt(item.amt)}원</div>
+            <div class="lbtns" style="justify-content:flex-end;margin-top:2px"><button class="ledit" onclick="openEditAsset('${item.key}')">✏️</button></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  // 스냅샷 히스토리 비교 테이블
+  const allKeys=[...new Set(snaps.flatMap(s=>s.items.map(i=>i.key)))];
+  const keyMeta={};
+  snaps.forEach(s=>s.items.forEach(i=>{keyMeta[i.key]={name:i.name,cat:i.cat};}));
+  const tblRows=allKeys.map(key=>{
+    const vals=snaps.map(s=>s.items.find(i=>i.key===key)?.amt??null);
+    if(vals.every(v=>v===null))return'';
+    const latest_v=vals[vals.length-1];
+    const first_v=vals.find(v=>v!==null);
+    const totalChg=latest_v!==null&&first_v!==null?latest_v-first_v:null;
+    return `<tr><td>${ASSET_CAT_EMOJI[keyMeta[key]?.cat]||''} ${keyMeta[key]?.name||key}</td>
+      ${vals.map(v=>v!==null?`<td style="${v<0?'color:#e05070':v>0?'color:#2ea868':''}">${fmtK(v)}</td>`:`<td style="color:var(--text3)">—</td>`).join('')}
+      <td style="${totalChg&&totalChg>0?'color:#2ea868;font-weight:800':totalChg&&totalChg<0?'color:#e05070;font-weight:800':''}">${totalChg!==null?(totalChg>=0?'+':'')+fmtK(totalChg):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('asset-body').innerHTML=`
+  <div class="asset-total fade">
+    <div style="font-size:10px;letter-spacing:1.5px;opacity:.7;margin-bottom:3px">순자산 (${latest.label} 기준)</div>
+    <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmt(netAsset)}<span style="font-size:15px">원</span></div>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+      <div style="background:rgba(255,255,255,.15);border-radius:9px;padding:3px 10px;font-size:10px">🏦 자산 +${fmtK(totalAsset)}</div>
+      <div style="background:rgba(255,255,255,.15);border-radius:9px;padding:3px 10px;font-size:10px">📉 부채 -${fmtK(Math.abs(totalDebt))}</div>
+    </div>
+  </div>
+  <div class="card fade"><div class="ctitle">📈 순자산 추이</div>${trendHtml}</div>
+  ${catHtml}
+  <div class="card fade"><div class="ctitle">📊 전체 자산 변화 비교</div>
+    <div style="overflow-x:auto"><table class="tbl" style="min-width:320px">
+      <thead><tr><th>항목</th>${snaps.map(s=>`<th>${s.label}</th>`).join('')}<th>변화</th></tr></thead>
+      <tbody>${tblRows}
+        <tr><td>순자산</td>${snaps.map(s=>{const p=s.items.filter(i=>i.amt>0).reduce((a,i)=>a+i.amt,0);const n=s.items.filter(i=>i.amt<0).reduce((a,i)=>a+i.amt,0);const net=p+n;return`<td style="color:${net>=0?'#2ea868':'#e05070'};font-weight:800">${fmtK(net)}</td>`;}).join('')}
+        <td style="color:var(--purple);font-weight:800">${(()=>{const first=snaps[0];const last=snaps[snaps.length-1];const fp=first.items.filter(i=>i.amt>0).reduce((a,i)=>a+i.amt,0)+first.items.filter(i=>i.amt<0).reduce((a,i)=>a+i.amt,0);const lp=last.items.filter(i=>i.amt>0).reduce((a,i)=>a+i.amt,0)+last.items.filter(i=>i.amt<0).reduce((a,i)=>a+i.amt,0);const d=lp-fp;return(d>=0?'+':'')+fmtK(d);})()}</td></tr>
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+// ===== COMPARE =====
+function renderCompare(){
+  const MONTHS=getMonths();
+  const mks=MONTHS.map(m=>m.key);
+  const subHtml=`<div class="ctabs">
+    <button class="ctab${compareSub==='expense'?' on':''}" onclick="setCompareSub('expense')">💸 지출</button>
+    <button class="ctab${compareSub==='income'?' on':''}" onclick="setCompareSub('income')">💵 수입</button>
+    <button class="ctab${compareSub==='net'?' on':''}" onclick="setCompareSub('net')">💚 순수지</button>
+  </div>`;
+  if(compareSub==='expense'){
+    const maxTotal=Math.max(...mks.map(mk=>getExp(mk).reduce((s,t)=>s+t.amt,0)),1);
+    const allCats=['식비','생활용품','건강','자녀','자동차','꾸밈비','자기계발','경조사','기타','고정 지출','여행'];
+    const barHtml=mks.map(mk=>{const total=getExp(mk).reduce((s,t)=>s+t.amt,0);const pct=Math.round(total/maxTotal*100);
+      return `<div class="cmpbar"><div class="cmplbl">${MONTHS.find(m=>m.key===mk)?.label||mk}</div>
+        <div class="cmptrack"><div class="cmpfill" style="width:${pct}%;background:${mk===curMonth?'#e05070':'#ffb3c6'}"><span class="cmpftxt">${fmtK(total)}</span></div></div>
+        <div class="cmpamt">${fmt(total)}</div></div>`;}).join('');
+    const tblRows=allCats.map(cat=>{const vals=mks.map(mk=>getExp(mk).filter(t=>t.cat===cat).reduce((s,t)=>s+t.amt,0));if(vals.every(v=>v===0))return'';const max=Math.max(...vals);
+      return `<tr><td>${CAT_EMOJI[cat]||''} ${cat}</td>${vals.map(v=>`<td style="${v===max&&v>0?'color:#e05070;font-weight:800;':''}">${v>0?fmtK(v):'—'}</td>`).join('')}</tr>`;}).join('');
+    document.getElementById('compare-body').innerHTML=`${subHtml}<div class="card fade"><div class="ctitle">📈 월별 지출 합계</div>${barHtml}</div>
+    <div class="card fade"><div class="ctitle">📊 카테고리 × 월</div><div style="overflow-x:auto"><table class="tbl" style="min-width:280px">
+      <thead><tr><th>카테고리</th>${MONTHS.map(m=>`<th>${m.label.slice(0,5)}</th>`).join('')}</tr></thead>
+      <tbody>${tblRows}<tr><td>합계</td>${mks.map(mk=>`<td>${fmtK(getExp(mk).reduce((s,t)=>s+t.amt,0))}</td>`).join('')}</tr></tbody></table></div></div>`;
+  } else if(compareSub==='income'){
+    const maxTotal=Math.max(...mks.map(mk=>getInc(mk).reduce((s,t)=>s+t.amt,0)),1);
+    const allIncCats=[...new Set(TX.filter(t=>t.type==='수입').map(t=>t.cat))];
+    const barHtml=mks.map(mk=>{const total=getInc(mk).reduce((s,t)=>s+t.amt,0);const pct=Math.round(total/maxTotal*100);
+      return `<div class="cmpbar"><div class="cmplbl">${MONTHS.find(m=>m.key===mk)?.label||mk}</div>
+        <div class="cmptrack"><div class="cmpfill" style="width:${pct}%;background:${mk===curMonth?'#2ea868':'#80d8a8'}"><span class="cmpftxt">${fmtK(total)}</span></div></div>
+        <div class="cmpamt">${fmt(total)}</div></div>`;}).join('');
+    const tblRows=allIncCats.map(cat=>{const vals=mks.map(mk=>getInc(mk).filter(t=>t.cat===cat).reduce((s,t)=>s+t.amt,0));if(vals.every(v=>v===0))return'';const max=Math.max(...vals);
+      return `<tr><td>${CAT_EMOJI[cat]||'💵'} ${cat}</td>${vals.map(v=>`<td style="${v===max&&v>0?'color:#2ea868;font-weight:800;':''}">${v>0?fmtK(v):'—'}</td>`).join('')}</tr>`;}).join('');
+    document.getElementById('compare-body').innerHTML=`${subHtml}<div class="card fade"><div class="ctitle">💵 월별 수입 합계</div>${barHtml}</div>
+    <div class="card fade"><div class="ctitle">📊 수입 카테고리 × 월</div><div style="overflow-x:auto"><table class="tbl" style="min-width:280px">
+      <thead><tr><th>카테고리</th>${MONTHS.map(m=>`<th>${m.label.slice(0,5)}</th>`).join('')}</tr></thead>
+      <tbody>${tblRows}<tr><td>합계</td>${mks.map(mk=>`<td>${fmtK(getInc(mk).reduce((s,t)=>s+t.amt,0))}</td>`).join('')}</tr></tbody></table></div></div>`;
+  } else {
+    const rows=mks.map(mk=>{const inc=getInc(mk).reduce((s,t)=>s+t.amt,0);const exp=getExp(mk).reduce((s,t)=>s+t.amt,0);const net=inc-exp;const sv=SAVING.filter(s=>{const d=new Date(s.date);return`${d.getFullYear()}_${d.getMonth()+1}`===mk;}).reduce((s,i)=>s+i.amt,0);
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:11px;font-weight:700">${MONTHS.find(m=>m.key===mk)?.label||mk}</div>
+        <div style="font-size:9px;color:var(--text3)">수입 ${fmtK(inc)} / 지출 ${fmtK(exp)} / 저축 ${fmtK(sv)}</div></div>
+        <div style="text-align:right"><div style="font-size:13px;font-weight:800;color:${net>=0?'#2ea868':'#e05070'}">${net>=0?'+':''}${fmtK(net)}원</div>
+        <div style="font-size:9px;color:var(--text3)">${inc>0?`저축률 ${Math.round(net/inc*100)}%`:'수입 미입력'}</div></div>
+      </div>`;}).join('');
+    document.getElementById('compare-body').innerHTML=`${subHtml}<div class="card fade"><div class="ctitle">💚 월별 수입/지출/순수지</div>${rows}</div>`;
+  }
+}
+function setCompareSub(sub){compareSub=sub;renderCompare();}
+
+// ===== FIXED =====
+function renderFixed(){
+  const cats=[...new Set(FIXED.map(f=>f.cat))];
+  const total=FIXED.reduce((s,f)=>s+f.amt,0);
+  let html=`<div class="hero fade" style="background:linear-gradient(135deg,#ffe8ec,#fff8e0,#e8f0ff)">
+    <div class="hlabel">월 고정 지출 합계</div><div class="hamount">${fmt(total)}<span class="won">원</span></div>
+    <div class="hchips"><div class="hchip">📌 <b>${FIXED.length}개</b></div></div></div>`;
+  cats.forEach(cat=>{
+    const items=FIXED.filter(f=>f.cat===cat);
+    const catTotal=items.reduce((s,f)=>s+f.amt,0);
+    html+=`<div class="card fade"><div class="ctitle" style="color:${FIXED_COL[cat]||'#9b7fe8'}">${cat} <span class="sub">${fmt(catTotal)}원/월</span></div>
+    ${items.map(f=>`<div class="fxitem"><div class="fxl"><div class="fxdot" style="background:${FIXED_COL[cat]||'#9b7fe8'}"></div>
+    <div><div class="fxname">${f.name}</div><div class="fxsub">${f.bank} · ${f.due}</div>
+    <div class="fxbtns"><button class="fxbtn fxedit" onclick="openFixedModal('${f.id}')">수정</button><button class="fxbtn fxdel" onclick="delFixed('${f.id}')">삭제</button></div></div></div>
+    <div style="text-align:right"><div style="font-size:12px;font-weight:700">${fmt(f.amt)}원</div><div class="fxsub">/월</div></div></div>`).join('')}</div>`;
+  });
+  document.getElementById('fixed-body').innerHTML=html;
+}
+
+// ===== PURPOSE =====
+function renderPurpose(){
+  const sorted=[...PURPOSE].sort((a,b)=>a.date.localeCompare(b.date));
+  let bal=0;
+  const withBal=sorted.map(p=>{bal+=p.type==='저축'?p.amt:-p.amt;return{...p,runBal:bal};});
+  const cur=withBal.length?withBal[withBal.length-1].runBal:0;
+  const totalIn=PURPOSE.filter(p=>p.type==='저축').reduce((s,p)=>s+p.amt,0);
+  const totalOut=PURPOSE.filter(p=>p.type==='지출').reduce((s,p)=>s+p.amt,0);
+  const list=[...withBal].reverse().map(p=>`<div class="puitem">
+    <div><div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+      <span class="pubadge ${p.type==='저축'?'in':'out'}">${p.type}</span>
+      <span style="font-size:11px;font-weight:600">${p.name}</span></div>
+    <div style="font-size:9px;color:var(--text3)">${p.date.replace(/-/g,'.')} ${p.memo?'· '+p.memo:''}</div>
+    <div style="font-size:9px;color:var(--text3)">잔액 ${fmt(p.runBal)}원</div></div>
+    <div style="text-align:right">
+      <div style="font-size:12px;font-weight:800;color:${p.type==='저축'?'#2ea868':'#e05070'}">${p.type==='저축'?'+':'-'}${fmt(p.amt)}</div>
+      <button class="fxbtn fxdel" style="margin-top:2px" onclick="delPurpose('${p.id}')">삭제</button>
+    </div></div>`).join('');
+  document.getElementById('purpose-body').innerHTML=`
+  <div class="hero fade" style="background:linear-gradient(135deg,#d5f5e8,#d5e8ff)">
+    <div class="hlabel">목적통장 잔액</div><div class="hamount">${fmt(cur)}<span class="won">원</span></div>
+    <div class="hchips"><div class="hchip">📥 입금 <b>${fmtK(totalIn)}원</b></div><div class="hchip">📤 출금 <b>${fmtK(totalOut)}원</b></div></div>
+  </div>
+  <div class="card fade"><div class="ctitle">💰 거래 내역</div>${list||'<div style="text-align:center;padding:16px;color:var(--text3)">내역 없음</div>'}</div>`;
+}
+
+// ===== MODAL TX =====
+function openTxModal(){
+  document.getElementById('modal-tx-title').textContent='💸 내역 추가';
+  document.getElementById('tx-edit-id').value='';
+  document.getElementById('tx-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('tx-name').value='';document.getElementById('tx-amt').value='';document.getElementById('tx-card').value='';
+  const pg=pgHistory[pgHistory.length-1];
+  setTxType(pg==='income'?'수입':'지출');
+  document.getElementById('modal-tx').classList.add('on');
+}
+function openEditTx(id){
+  const t=TX.find(x=>x.id===id);if(!t)return;
+  document.getElementById('modal-tx-title').textContent='✏️ 내역 수정';
+  document.getElementById('tx-edit-id').value=id;
+  document.getElementById('tx-date').value=t.date;
+  document.getElementById('tx-name').value=t.name;
+  document.getElementById('tx-amt').value=t.amt;
+  document.getElementById('tx-card').value=t.card||'';
+  setTxType(t.type||'지출');
+  setTimeout(()=>{document.getElementById('tx-cat').value=t.cat;},20);
+  document.getElementById('modal-tx').classList.add('on');
+}
+function closeTxModal(){document.getElementById('modal-tx').classList.remove('on');}
+function saveTx(){
+  const eid=document.getElementById('tx-edit-id').value;
+  const date=document.getElementById('tx-date').value;
+  const name=document.getElementById('tx-name').value.trim();
+  const cat=document.getElementById('tx-cat').value;
+  const amt=parseInt(document.getElementById('tx-amt').value)||0;
+  const card=document.getElementById('tx-card').value.trim();
+  const type=curTxType;
+  if(!name||!amt){alert('항목명과 금액을 입력해주세요');return;}
+  const d=new Date(date);
+  const item={id:eid||uid(),date,name,cat,amt,card,type,year:d.getFullYear(),month:d.getMonth()+1,week:Math.ceil(d.getDate()/7)};
+  if(eid){const idx=TX.findIndex(t=>t.id===eid);if(idx>-1)TX[idx]=item;}else TX.push(item);
+  save();closeTxModal();
+  const pg=pgHistory[pgHistory.length-1];
+  if(pg==='detail')renderDetail(curMonth,curCat);
+  else if(pg==='income')renderIncome(curMonth);
+  else renderHome(curMonth);
+}
+function delTx(id){
+  if(!confirm('삭제할까요?'))return;
+  TX=TX.filter(t=>t.id!==id);save();
+  const pg=pgHistory[pgHistory.length-1];
+  if(pg==='detail')renderDetail(curMonth,curCat);
+  else if(pg==='income')renderIncome(curMonth);
+}
+function importJson(){
+  try{
+    const raw=document.getElementById('import-json').value.trim();
+    const arr=JSON.parse(raw);let added=0;
+    arr.forEach(item=>{
+      const ds=item.date||new Date().toISOString().slice(0,10);const d=new Date(ds);
+      if(!TX.find(t=>t.name===item.name&&t.amt===item.amt&&t.date===ds)){
+        TX.push({id:uid(),date:ds,name:item.name||'',cat:item.cat||'기타',amt:item.amt||0,card:item.card||'',type:item.type||'지출',year:d.getFullYear(),month:d.getMonth()+1,week:item.week||Math.ceil(d.getDate()/7)});added++;
+      }
+    });
+    save();closeTxModal();alert(`${added}건 추가됐어요!`);
+    renderDetail(curMonth,curCat);
+  }catch(e){alert('JSON 형식이 올바르지 않아요.');}
+}
+
+// ===== MODAL SAVING =====
+function openSavingModal(){
+  document.getElementById('modal-saving-title').textContent='💎 저축 추가';
+  document.getElementById('sv-edit-id').value='';
+  document.getElementById('sv-date').value=new Date().toISOString().slice(0,10);
+  ['sv-name','sv-amt','sv-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-saving').classList.add('on');
+}
+function openEditSaving(id){
+  const s=SAVING.find(x=>x.id===id);if(!s)return;
+  document.getElementById('modal-saving-title').textContent='✏️ 저축 수정';
+  document.getElementById('sv-edit-id').value=id;
+  document.getElementById('sv-date').value=s.date;
+  document.getElementById('sv-name').value=s.name;
+  document.getElementById('sv-cat').value=s.cat;
+  document.getElementById('sv-amt').value=s.amt;
+  document.getElementById('sv-memo').value=s.memo||'';
+  document.getElementById('modal-saving').classList.add('on');
+}
+function closeSavingModal(){document.getElementById('modal-saving').classList.remove('on');}
+function saveSaving(){
+  const eid=document.getElementById('sv-edit-id').value;
+  const item={id:eid||uid(),date:document.getElementById('sv-date').value,name:document.getElementById('sv-name').value.trim(),cat:document.getElementById('sv-cat').value,amt:parseInt(document.getElementById('sv-amt').value)||0,memo:document.getElementById('sv-memo').value.trim()};
+  if(!item.name||!item.amt){alert('항목명과 금액을 입력해주세요');return;}
+  if(eid){const idx=SAVING.findIndex(s=>s.id===eid);if(idx>-1)SAVING[idx]=item;}else SAVING.push(item);
+  save();closeSavingModal();renderSaving(curSavingMonth);
+}
+function delSaving(id){if(!confirm('삭제할까요?'))return;SAVING=SAVING.filter(s=>s.id!==id);save();renderSaving(curSavingMonth);}
+
+// ===== MODAL FIXED =====
+function openFixedModal(id){
+  const fx=id?FIXED.find(f=>f.id===id):null;
+  document.getElementById('modal-fixed-title').textContent=fx?'📌 고정비 수정':'📌 고정비 추가';
+  document.getElementById('fx-edit-id').value=id||'';
+  document.getElementById('fx-name').value=fx?.name||'';document.getElementById('fx-amt').value=fx?.amt||'';
+  document.getElementById('fx-cat').value=fx?.cat||'주거';document.getElementById('fx-bank').value=fx?.bank||'';document.getElementById('fx-due').value=fx?.due||'';
+  document.getElementById('modal-fixed').classList.add('on');
+}
+function closeFixedModal(){document.getElementById('modal-fixed').classList.remove('on');}
+function saveFixed(){
+  const id=document.getElementById('fx-edit-id').value;
+  const item={id:id||uid(),name:document.getElementById('fx-name').value.trim(),amt:parseInt(document.getElementById('fx-amt').value)||0,cat:document.getElementById('fx-cat').value,bank:document.getElementById('fx-bank').value.trim(),due:document.getElementById('fx-due').value.trim()};
+  if(!item.name||!item.amt){alert('항목명과 금액을 입력해주세요');return;}
+  if(id){const idx=FIXED.findIndex(f=>f.id===id);if(idx>-1)FIXED[idx]=item;}else FIXED.push(item);
+  save();closeFixedModal();renderFixed();
+}
+function delFixed(id){if(!confirm('삭제할까요?'))return;FIXED=FIXED.filter(f=>f.id!==id);save();renderFixed();}
+
+// ===== MODAL PURPOSE =====
+function openPurposeModal(){
+  document.getElementById('pu-date').value=new Date().toISOString().slice(0,10);
+  ['pu-name','pu-amt','pu-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-purpose').classList.add('on');
+}
+function closePurposeModal(){document.getElementById('modal-purpose').classList.remove('on');}
+function savePurpose(){
+  const date=document.getElementById('pu-date').value;const name=document.getElementById('pu-name').value.trim();
+  const type=document.getElementById('pu-type').value;const amt=parseInt(document.getElementById('pu-amt').value)||0;const memo=document.getElementById('pu-memo').value.trim();
+  if(!name||!amt){alert('항목명과 금액을 입력해주세요');return;}
+  PURPOSE.push({id:uid(),date,name,type,amt,memo});save();closePurposeModal();renderPurpose();
+}
+function delPurpose(id){if(!confirm('삭제할까요?'))return;PURPOSE=PURPOSE.filter(p=>p.id!==id);save();renderPurpose();}
+
+// ===== MODAL ASSET =====
+function openAssetModal(){
+  document.getElementById('modal-asset-title').textContent='🏦 자산 항목 추가';
+  document.getElementById('as-edit-key').value='';
+  document.getElementById('as-name').value='';document.getElementById('as-amt').value='';
+  document.getElementById('as-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('modal-asset').classList.add('on');
+}
+function openEditAsset(key){
+  const snaps=ASSET_SNAPSHOTS.sort((a,b)=>a.date.localeCompare(b.date));
+  const latest=snaps[snaps.length-1];
+  const item=latest?.items.find(i=>i.key===key);
+  if(!item)return;
+  document.getElementById('modal-asset-title').textContent='✏️ 자산 수정';
+  document.getElementById('as-edit-key').value=key;
+  document.getElementById('as-name').value=item.name;
+  document.getElementById('as-cat').value=item.cat;
+  document.getElementById('as-amt').value=item.amt;
+  document.getElementById('as-date').value=latest.date;
+  document.getElementById('modal-asset').classList.add('on');
+}
+function closeAssetModal(){document.getElementById('modal-asset').classList.remove('on');}
+function saveAsset(){
+  const key=document.getElementById('as-edit-key').value;
+  const name=document.getElementById('as-name').value.trim();
+  const cat=document.getElementById('as-cat').value;
+  const amt=parseFloat(document.getElementById('as-amt').value)||0;
+  const date=document.getElementById('as-date').value;
+  if(!name){alert('자산명을 입력해주세요');return;}
+  const itemKey=key||(cat+'_'+name.replace(/ /g,''));
+  // 해당 날짜 스냅샷 찾거나 새로 생성
+  let snap=ASSET_SNAPSHOTS.find(s=>s.date===date);
+  if(!snap){
+    // 가장 최근 스냅샷 복사
+    const sorted=ASSET_SNAPSHOTS.sort((a,b)=>a.date.localeCompare(b.date));
+    const prev=sorted[sorted.length-1];
+    snap={date,label:date.slice(0,7).replace('-','년 ')+'월',items:prev?[...prev.items.map(i=>({...i}))]:[]};
+    ASSET_SNAPSHOTS.push(snap);
+  }
+  const existing=snap.items.findIndex(i=>i.key===itemKey);
+  const newItem={key:itemKey,name,cat,amt};
+  if(existing>-1)snap.items[existing]=newItem;else snap.items.push(newItem);
+  save();closeAssetModal();renderAsset();
+}
+
+// ===== MODAL BG CLOSE =====
+document.querySelectorAll('.modal-bg').forEach(bg=>{bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on');});});
+window.addEventListener('popstate',()=>{if(pgHistory.length>1){pgHistory.pop();_showPg(pgHistory[pgHistory.length-1]);}});
+
+// ===== INIT =====
+load();
+_showPg('home');
+</script>
+</body>
+</html>
